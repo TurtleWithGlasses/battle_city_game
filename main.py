@@ -1,5 +1,6 @@
 import pygame
 import gameconfig as gc
+from game_assets import GameAssets
 
 
 class Main:
@@ -7,15 +8,18 @@ class Main:
         """"Main Game Object"""
         # Initialize pygame module
         pygame.init()
+        print("[INFO] Initializing game...")
 
         self.screen = pygame.display.set_mode((gc.SCREENWIDTH, gc.SCREENHEIGHT))
         pygame.display.set_caption("Battle City Clone")
 
-        self.Clock = pygame.time.Clock()
+        self.clock = pygame.time.Clock()
         self.run = True
 
+        self.assets = GameAssets()
+
     def run_game(self):
-        """Mainb game while loop"""
+        """Main game while loop"""
         while self.run:
             self.input()
             self.update()
@@ -31,7 +35,7 @@ class Main:
     
     def update(self):
         """Update the program and all objects within"""
-        self.Clock.tick(gc.FPS)
+        self.clock.tick(gc.FPS)
 
     def draw(self):
         """Handle all of the drawing of the game to the screen"""
