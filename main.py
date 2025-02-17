@@ -1,6 +1,7 @@
 import pygame
 import gameconfig as gc
 from game_assets import GameAssets
+from game import Game
 
 
 class Main:
@@ -18,6 +19,9 @@ class Main:
 
         self.assets = GameAssets()
 
+        self.game_on = True
+        self.game = Game(self, self.assets)
+
     def run_game(self):
         """Main game while loop"""
         while self.run:
@@ -27,20 +31,33 @@ class Main:
 
     def input(self):
         """Input handling for the game"""
-        # Main game controls
+        # Event handler while the game is True
+        if self.game_on:
+            self.game.input()
+            
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.run = False
+        # Main game controls
+        if not self.game_on:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.run = False
     
     def update(self):
         """Update the program and all objects within"""
         self.clock.tick(gc.FPS)
 
+        # If game is running, update game
+        if self.game_on:
+            self.game.update()
+
     def draw(self):
         """Handle all of the drawing of the game to the screen"""
         self.screen.fill(gc.BLACK)
-        self.screen.blit(self.assets.brick_tiles["small"], (350,350))
+
+        # If game is running, draw game screen
+        if self.game_on:
+            self.game.draw(self.screen)
+        
 
         pygame.display.update()
 
