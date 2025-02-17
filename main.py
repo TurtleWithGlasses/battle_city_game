@@ -40,7 +40,7 @@ class Main:
     def draw(self):
         """Handle all of the drawing of the game to the screen"""
         self.screen.fill(gc.BLACK)
-        self.screen.blit(self.assets.tank_images["Tank_4"]["Green"]["Up"][0], (400, 400))
+        self.screen.blit(self.assets.brick_tiles["small"], (350,350))
 
         pygame.display.update()
 
