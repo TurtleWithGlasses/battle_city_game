@@ -1,5 +1,6 @@
 import pygame
 import gameconfig as gc
+from characters import Tank
 
 
 class Game:
@@ -8,6 +9,13 @@ class Game:
         # The main file
         self.main = main
         self.assets = assets
+
+        # Object groups
+        self.groups = {"All_Tanks": pygame.sprite.Group()}
+
+        # Player objects
+        self.player1 = Tank(self, self.assets, self.groups, (200, 200), "Up", "Gold", 0)
+        self.player2 = Tank(self, self.assets, self.groups, (400, 200), "Up", "Green", 1)
     
     def input(self):
         """Handles inputs for the game when it's running.."""
@@ -23,10 +31,13 @@ class Game:
 
     def update(self):
         print("The game is being run..")
+        self.player1.update()
+        self.player2.update()
     
     def draw(self, window):
         """Drawing to the screen"""
         if self.assets:
-            pass
+            self.player1.draw(window)
+            self.player2.draw(window)
         else:
             print("[ERROR] Game assets are missing!")
