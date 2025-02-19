@@ -45,6 +45,7 @@ class Tank(pygame.sprite.Sprite):
         # If the tank is set to active, draw to screen
         if self.active:
             window.blit(self.image, self.rect)
+            pygame.draw.rect(window, gc.RED, self.rect, 1)
     
     def move_tank(self, direction):
         """Move the tank in the passed direction"""
@@ -63,6 +64,8 @@ class Tank(pygame.sprite.Sprite):
         self.rect.topleft = (self.x_pos, self.y_pos)
         # Update the Tank Animation
         self.tank_movement_animation()
+        # Check for tank collisions with other tanks
+        self.tank_on_tank_collision()
     
     # Tank animations
     def tank_movement_animation(self):
@@ -71,6 +74,41 @@ class Tank(pygame.sprite.Sprite):
         image_listlength = len(self.tank_images[f"Tank_{self.tank_level}"][self.color][self.direction])
         self.frame_index = self.frame_index % image_listlength
         self.image = self.tank_images[f"Tank_{self.tank_level}"][self.color][self.direction][self.frame_index]
+    
+    # Tank collision
+    def tank_on_tank_collision(self):
+        """Check if the the collides with another tank"""
+
+        tank_collision = pygame.sprite.spritecollide(self, self.tank_group, False)
+        if len(tank_collision) == 1:
+            return
+        
+        for tank in tank_collision:
+            # Skip tank if it is the current object
+            if tank == self:
+                continue
+
+            if self.direction == "Right":
+                if self.rect.right >= tank.rect.left and \
+                    self.rect.bottom > tank.rect.top and self.rect.top < tank.rect.bottom:
+                    self.rect.right = tank.rect.left
+                    self.x_pos = self.rect.x
+            elif self.direction == "Left":
+                if self.rect.left <= tank.rect.right and \
+                    self.rect.bottom > tank.rect.top and self.rect.top < tank.rect.bottom:
+                    self.rect.left = tank.rect.right
+                    self.x_pos = self.rect.x
+            elif self.direction == "Up":
+                if self.rect.top <= tank.rect.bottom and \
+                    self.rect.left < tank.rect.right and self.rect.right > tank.rect.left:
+                    self.rect.top = tank.rect.bottom
+                    self.y_pos = self.rect.y
+            elif self.direction == "Down":
+                if self.rect.bottom >= tank.rect.top and \
+                    self.rect.left < tank.rect.right and self.rect.right > tank.rect.left:
+                    self.rect.bottom = tank.rect.top
+                    self.y_pos = self.rect.y
+
 
 class PlayerTank(Tank):
     def __init__(self, game, assets, groups, position, direction, color, tank_level):

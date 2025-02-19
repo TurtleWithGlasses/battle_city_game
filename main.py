@@ -58,7 +58,6 @@ class Main:
         if self.game_on:
             self.game.draw(self.screen)
         
-
         pygame.display.update()
 
 

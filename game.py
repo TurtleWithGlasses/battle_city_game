@@ -22,7 +22,7 @@ class Game:
         keypressed = pygame.key.get_pressed()
         self.player1.input(keypressed)
         self.player2.input(keypressed)
-        
+
         # pygame event handler
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -34,7 +34,6 @@ class Game:
                     self.main.run = False
 
     def update(self):
-        print("The game is being run..")
         self.player1.update()
         self.player2.update()
     
