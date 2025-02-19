@@ -12,6 +12,9 @@ FPS = 60
 # Color definitions
 BLACK = (0,0,0)
 
+# Tank variables
+TANK_SPEED = image_size // sprite_size
+
 # Spritesheet images and coordinates
 SPAWN_STAR = {"star_0": [(sprite_size * 16), (sprite_size * 6), sprite_size, sprite_size],
               "star_1": [(sprite_size * 17), (sprite_size * 6), sprite_size, sprite_size],
