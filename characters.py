@@ -18,14 +18,18 @@ class Tank(pygame.sprite.Sprite):
 
         # Tank images
         self.tank_images = self.assets.tank_images
+        self.spawn_images = self.assets.spawn_star_images
 
         # Tank position and direction
         self.spawn_pos = position
         self.x_pos, self.y_pos = self.spawn_pos
         self.direction = direction
 
+        # Tank spawning
+        self.spawning = True
+        self.active = False
+
         # Common tank attributes
-        self.active = True
         self.tank_level = tank_level
         self.color = color
         self.tank_speed = gc.TANK_SPEED
@@ -35,13 +39,33 @@ class Tank(pygame.sprite.Sprite):
         self.image = self.tank_images[f"Tank_{self.tank_level}"][self.color][self.direction][self.frame_index]
         self.rect = self.image.get_rect(topleft=(self.spawn_pos))
 
+        # Spawn images
+        self.spawn_image = self.spawn_images[f"star_{self.frame_index}"]
+        self.spawn_timer = pygame.time.get_ticks() # Overall spawn timer
+        self.spawn_animation_timer = pygame.time.get_ticks() # Spawn star animation timer
+
     def input(self):
         pass
 
     def update(self):
-        pass
+        # Update the spawn animation
+        if self.spawning:
+            # Update the spawning star animations if the required amount of time has passed
+            if pygame.time.get_ticks() - self.spawn_animation_timer >= 50:
+                self.spawn_animation()
+            # If total spawn timer seconds passed, change the spawning
+            if pygame.time.get_ticks() - self.spawn_timer > 2000:
+                self.frame_index = 0
+                self.spawning = False
+                self.active = True
+        
+        return
 
     def draw(self, window):
+        # If tank is spawning in, draw the spawn star
+        if self.spawning:
+            window.blit(self.spawn_image, self.rect)
+
         # If the tank is set to active, draw to screen
         if self.active:
             window.blit(self.image, self.rect)
@@ -49,6 +73,9 @@ class Tank(pygame.sprite.Sprite):
     
     def move_tank(self, direction):
         """Move the tank in the passed direction"""
+        if self.spawning:
+            return
+        
         self.direction = direction
 
         if direction == "Up":
@@ -75,6 +102,13 @@ class Tank(pygame.sprite.Sprite):
         self.frame_index = self.frame_index % image_listlength
         self.image = self.tank_images[f"Tank_{self.tank_level}"][self.color][self.direction][self.frame_index]
     
+    def spawn_animation(self):
+        """Cycle through the spawn star images to stimulate a spawning icon"""
+        self.frame_index += 1
+        self.frame_index = self.frame_index % len(self.spawn_images)
+        self.spawn_image = self.spawn_images[f"star_{self.frame_index}"]
+        self.spawn_animation_timer = pygame.time.get_ticks()
+
     # Tank collision
     def tank_on_tank_collision(self):
         """Check if the the collides with another tank"""
