@@ -1,4 +1,5 @@
 import pygame
+from ammunition import Bullet
 import gameconfig as gc
 
 
@@ -151,6 +152,10 @@ class Tank(pygame.sprite.Sprite):
                     self.rect.left < tank.rect.right and self.rect.right > tank.rect.left:
                     self.rect.bottom = tank.rect.top
                     self.y_pos = self.rect.y
+        
+    # Tank shooting
+    def shoot(self):
+        bullet = Bullet(self.groups, self, self.rect.center, self.direction, self.assets)
 
 
 class PlayerTank(Tank):

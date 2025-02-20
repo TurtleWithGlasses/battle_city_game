@@ -24,6 +24,7 @@ FPS = 60
 BLACK = (0,0,0)
 RED = (255, 0, 0)
 GREY = (99, 99, 99)
+GREEN = (0, 255, 0)
 
 # Tank variables
 TANK_SPEED = image_size // sprite_size

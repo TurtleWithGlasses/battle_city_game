@@ -12,7 +12,8 @@ class Game:
         self.assets = assets
 
         # Object groups
-        self.groups = {"All_Tanks": pygame.sprite.Group()}
+        self.groups = {"All_Tanks": pygame.sprite.Group(),
+                       "Bullets": pygame.sprite.Group()}
 
         # Player attributes
         self.player_1_active = player_1
@@ -52,6 +53,15 @@ class Game:
                 if event.key == pygame.K_ESCAPE:
                     self.main.run = False
                 
+                if event.key == pygame.K_SPACE:
+                    if self.player_1_active:
+                        self.player1.shoot()
+
+                if event.key == pygame.K_RCTRL:
+                    if self.player_2_active:
+                        self.player2.shoot()
+                    
+                
                 if event.key == pygame.K_RETURN:
                     self.enemies -= 1
 
@@ -59,10 +69,12 @@ class Game:
     def update(self):
         #Update the hud
         self.hud.update()
-        if self.player_1_active:
-            self.player1.update()
-        if self.player_2_active:
-            self.player2.update()
+        # if self.player_1_active:
+        #     self.player1.update()
+        # if self.player_2_active:
+        #     self.player2.update()
+        for dict_key in self.groups.keys():
+            self.groups[dict_key].update()
     
     def draw(self, window):
         """Drawing to the screen"""
@@ -72,5 +84,7 @@ class Game:
                 self.player1.draw(window)
             if self.player_2_active:
                 self.player2.draw(window)
+            for dict_key in self.groups.keys():
+                self.groups[dict_key].draw(window)
         else:
             print("[ERROR] Game assets are missing!")
