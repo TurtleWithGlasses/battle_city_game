@@ -29,6 +29,10 @@ class Game:
             self.player1 = PlayerTank(self, self.assets, self.groups, (200, 200), "Up", "Gold", 0)
         if self.player_2_active:
             self.player2 = PlayerTank(self, self.assets, self.groups, (400, 200), "Up", "Green", 1)
+        
+        # Number of enemy tanks
+        self.enemies = gc.STD_ENEMIES
+
     
     def input(self):
         """Handles inputs for the game when it's running.."""
@@ -49,7 +53,7 @@ class Game:
                     self.main.run = False
                 
                 if event.key == pygame.K_RETURN:
-                    self.level_num += 1
+                    self.enemies -= 1
 
 
     def update(self):

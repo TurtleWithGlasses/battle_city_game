@@ -9,6 +9,13 @@ SCREENHEIGHT = 14 * image_size
 # HUD overlay and game screen
 GAME_SCREEN = (image_size, image_size // 2, image_size * 13, image_size * 13)
 INFO_PANEL_X, INFO_PANEL_Y = SCREENWIDTH - (image_size * 2), image_size // 2
+STD_ENEMIES = 20
+
+# Game screen borders
+SCREEN_BORDER_LEFT = GAME_SCREEN[0]
+SCREEN_BORDER_TOP = GAME_SCREEN[1]
+SCREEN_BORDER_RIGHT = GAME_SCREEN[2] + SCREEN_BORDER_LEFT
+SCREEN_BORDER_BOTTOM = GAME_SCREEN[3] + SCREEN_BORDER_TOP
 
 # FPS settings
 FPS = 60
