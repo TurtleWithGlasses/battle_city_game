@@ -5,7 +5,7 @@ from game_hud import GameHud
 
 
 class Game:
-    def __init__(self, main, assets):
+    def __init__(self, main, assets, player_1=True, player_2=False):
         """The main Game Object when playing"""
         # The main file
         self.main = main
@@ -14,18 +14,26 @@ class Game:
         # Object groups
         self.groups = {"All_Tanks": pygame.sprite.Group()}
 
+        # Player attributes
+        self.player_1_active = player_1
+        self.player_2_active = player_2
+
         # Game HUD
         self.hud = GameHud(self, self.assets)
 
         # Player objects
-        self.player1 = PlayerTank(self, self.assets, self.groups, (200, 200), "Up", "Gold", 0)
-        self.player2 = PlayerTank(self, self.assets, self.groups, (400, 200), "Up", "Green", 1)
+        if self.player_1_active:
+            self.player1 = PlayerTank(self, self.assets, self.groups, (200, 200), "Up", "Gold", 0)
+        if self.player_2_active:
+            self.player2 = PlayerTank(self, self.assets, self.groups, (400, 200), "Up", "Green", 1)
     
     def input(self):
         """Handles inputs for the game when it's running.."""
         keypressed = pygame.key.get_pressed()
-        self.player1.input(keypressed)
-        self.player2.input(keypressed)
+        if self.player_1_active:
+            self.player1.input(keypressed)
+        if self.player_2_active:
+            self.player2.input(keypressed)
 
         # pygame event handler
         for event in pygame.event.get():
@@ -37,17 +45,22 @@ class Game:
                 if event.key == pygame.K_ESCAPE:
                     self.main.run = False
 
+
     def update(self):
         #Update the hud
         self.hud.update()
-        self.player1.update()
-        self.player2.update()
+        if self.player_1_active:
+            self.player1.update()
+        if self.player_2_active:
+            self.player2.update()
     
     def draw(self, window):
         """Drawing to the screen"""
         if self.assets:
             self.hud.draw(window)
-            self.player1.draw(window)
-            self.player2.draw(window)
+            if self.player_1_active:
+                self.player1.draw(window)
+            if self.player_2_active:
+                self.player2.draw(window)
         else:
             print("[ERROR] Game assets are missing!")

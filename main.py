@@ -20,7 +20,7 @@ class Main:
         self.assets = GameAssets()
 
         self.game_on = True
-        self.game = Game(self, self.assets)
+        self.game = Game(self, self.assets, True, True)
 
     def run_game(self):
         """Main game while loop"""

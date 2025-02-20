@@ -147,6 +147,7 @@ class Tank(pygame.sprite.Sprite):
 class PlayerTank(Tank):
     def __init__(self, game, assets, groups, position, direction, color, tank_level):
         super().__init__(game, assets, groups, position, direction, color, tank_level)
+        self.lives = 3
     
     def input(self, keypressed):
         """Move the player tanks"""
