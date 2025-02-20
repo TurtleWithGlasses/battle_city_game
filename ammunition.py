@@ -34,6 +34,8 @@ class Bullet(pygame.sprite.Sprite):
         self.collide_edge_of_screen()
         # Check for bullet collision with a tank
         self.collide_with_tank()
+        # Check for bullet collision
+        self.collision_with_bullet()
 
     def draw(self, window):
         # Draw bullet on the screen
@@ -67,7 +69,7 @@ class Bullet(pygame.sprite.Sprite):
         """Check if the bullet collides with a tank"""
         tank_collisions = pygame.sprite.spritecollide(self, self.tanks, False)
         for tank in tank_collisions:
-            if self.owner == tank:
+            if self.owner == tank or tank.spawning == True:
                 continue
             # Player owned bullet collides with a player tank
             if self.owner.enemy == False and tank.enemy == False:
@@ -75,7 +77,28 @@ class Bullet(pygame.sprite.Sprite):
                 tank.paralyze_tank(gc.TANK_PARALYSIS)
                 self.kill()
                 break
-    
+            # Check for player bullet collision with AI tank or AI bullet with player tank
+            if (self.owner.enemy == False and tank.enemy == True) or \
+                  (self.owner.enemy == True and tank.enemy == False):
+                self.update_owner()
+                tank.destroy_tank()
+                self.kill()
+                break
+
+    def collision_with_bullet(self):
+        """Check if bullet collides with another bullet"""
+        bullet_hit = pygame.sprite.spritecollide(self, self.bullet_group, False)
+        if len(bullet_hit) == 1:
+            return 
+        for bullet in bullet_hit:
+            if bullet == self:
+                continue
+            bullet.update_owner()
+            bullet.kill()
+            self.update_owner()
+            self.kill()
+            break            
+
     def update_owner(self):
         if self.owner.bullet_sum > 0:
             self.owner.bullet_sum -= 1

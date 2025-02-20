@@ -63,6 +63,7 @@ class Game:
                     
                 
                 if event.key == pygame.K_RETURN:
+                    Tank(self, self.assets, self.groups, (400, 400), "Down")
                     self.enemies -= 1
 
 
