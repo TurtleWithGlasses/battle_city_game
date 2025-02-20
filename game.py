@@ -1,6 +1,7 @@
 import pygame
 import gameconfig as gc
 from characters import Tank, PlayerTank
+from game_hud import GameHud
 
 
 class Game:
@@ -12,6 +13,9 @@ class Game:
 
         # Object groups
         self.groups = {"All_Tanks": pygame.sprite.Group()}
+
+        # Game HUD
+        self.hud = GameHud(self, self.assets)
 
         # Player objects
         self.player1 = PlayerTank(self, self.assets, self.groups, (200, 200), "Up", "Gold", 0)
@@ -34,12 +38,15 @@ class Game:
                     self.main.run = False
 
     def update(self):
+        #Update the hud
+        self.hud.update()
         self.player1.update()
         self.player2.update()
     
     def draw(self, window):
         """Drawing to the screen"""
         if self.assets:
+            self.hud.draw(window)
             self.player1.draw(window)
             self.player2.draw(window)
         else:

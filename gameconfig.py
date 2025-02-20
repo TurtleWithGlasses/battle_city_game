@@ -6,12 +6,17 @@ image_size = sprite_size * sprite_scale
 SCREENWIDTH = 16 * image_size
 SCREENHEIGHT = 14 * image_size
 
+# HUD overlay and game screen
+GAME_SCREEN = (image_size, image_size // 2, image_size * 13, image_size * 13)
+INFO_PANEL_X, INFO_PANEL_Y = SCREENWIDTH - (image_size * 2), image_size // 2
+
 # FPS settings
 FPS = 60
 
 # Color definitions
 BLACK = (0,0,0)
 RED = (255, 0, 0)
+GREY = (99, 99, 99)
 
 # Tank variables
 TANK_SPEED = image_size // sprite_size
