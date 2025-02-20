@@ -41,10 +41,15 @@ class Tank(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(self.spawn_pos))
         self.width, self.height = self.image.get_size()
 
+        # Shoot cooldowns and bullet totals
+        self.bullet_limit = 1
+        self.bullet_sum = 0
+
         # Spawn images
         self.spawn_image = self.spawn_images[f"star_{self.frame_index}"]
         self.spawn_timer = pygame.time.get_ticks() # Overall spawn timer
         self.spawn_animation_timer = pygame.time.get_ticks() # Spawn star animation timer
+
 
     def input(self):
         pass
@@ -155,8 +160,10 @@ class Tank(pygame.sprite.Sprite):
         
     # Tank shooting
     def shoot(self):
+        if self.bullet_sum >= self.bullet_limit:
+            return
         bullet = Bullet(self.groups, self, self.rect.center, self.direction, self.assets)
-
+        self.bullet_sum += 1
 
 class PlayerTank(Tank):
     def __init__(self, game, assets, groups, position, direction, color, tank_level):

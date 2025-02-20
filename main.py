@@ -56,8 +56,7 @@ class Main:
 
         # If game is running, draw game screen
         if self.game_on:
-            self.game.draw(self.screen)
-        
+            self.game.draw(self.screen)        
         pygame.display.update()
 
 

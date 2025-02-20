@@ -74,7 +74,8 @@ class Game:
         # if self.player_2_active:
         #     self.player2.update()
         for dict_key in self.groups.keys():
-            self.groups[dict_key].update()
+            for item in self.groups[dict_key]:
+                item.update()
     
     def draw(self, window):
         """Drawing to the screen"""
@@ -85,6 +86,7 @@ class Game:
             if self.player_2_active:
                 self.player2.draw(window)
             for dict_key in self.groups.keys():
-                self.groups[dict_key].draw(window)
+                for item in self.groups[dict_key]:
+                    item.draw(window)
         else:
             print("[ERROR] Game assets are missing!")
