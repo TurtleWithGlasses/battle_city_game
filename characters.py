@@ -4,7 +4,7 @@ import gameconfig as gc
 
 
 class Tank(pygame.sprite.Sprite):
-    def __init__(self, game, assets, groups, position, direction, color="Silver", tank_level=0):
+    def __init__(self, game, assets, groups, position, direction, enemy = True, color="Silver", tank_level=0):
         super().__init__()
         # Game object and assets
         self.game = game
@@ -34,6 +34,7 @@ class Tank(pygame.sprite.Sprite):
         self.tank_level = tank_level
         self.color = color
         self.tank_speed = gc.TANK_SPEED
+        self.enemy = enemy
 
         # Tank image, rectangle and frame index
         self.frame_index = 0
@@ -44,6 +45,11 @@ class Tank(pygame.sprite.Sprite):
         # Shoot cooldowns and bullet totals
         self.bullet_limit = 1
         self.bullet_sum = 0
+
+        # Tank paralysis
+        self.paralyzed = False
+        self.paralysis = gc.TANK_PARALYSIS
+        self.paralysis_timer = pygame.time.get_ticks()
 
         # Spawn images
         self.spawn_image = self.spawn_images[f"star_{self.frame_index}"]
@@ -65,8 +71,11 @@ class Tank(pygame.sprite.Sprite):
                 self.frame_index = 0
                 self.spawning = False
                 self.active = True
+            return
         
-        return
+        if self.paralyzed:
+            if pygame.time.get_ticks() - self.paralysis_timer >= self.paralysis:
+                self.paralyzed = False
 
     def draw(self, window):
         # If tank is spawning in, draw the spawn star
@@ -84,6 +93,10 @@ class Tank(pygame.sprite.Sprite):
             return
         
         self.direction = direction
+        self.image = self.tank_images[f"Tank_{self.tank_level}"][self.color][self.direction][self.frame_index]
+
+        if self.paralyzed:
+            return
 
         if direction == "Up":
             self.y_pos -= self.tank_speed
@@ -164,10 +177,17 @@ class Tank(pygame.sprite.Sprite):
             return
         bullet = Bullet(self.groups, self, self.rect.center, self.direction, self.assets)
         self.bullet_sum += 1
+    
+    # Actions affecting tanks
+    def paralyze_tank(self, paralysis_time):
+        """If player tank is hit by another player tank, paralysis begins"""
+        self.paralysis = paralysis_time
+        self.paralyzed = True
+        self.paralysis_timer = pygame.time.get_ticks()
 
 class PlayerTank(Tank):
     def __init__(self, game, assets, groups, position, direction, color, tank_level):
-        super().__init__(game, assets, groups, position, direction, color, tank_level)
+        super().__init__(game, assets, groups, position, direction, False, color, tank_level)
         self.lives = 3
     
     def input(self, keypressed):
