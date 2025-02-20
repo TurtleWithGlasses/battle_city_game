@@ -21,6 +21,9 @@ class Game:
         # Game HUD
         self.hud = GameHud(self, self.assets)
 
+        # Level information
+        self.level_num = 1
+
         # Player objects
         if self.player_1_active:
             self.player1 = PlayerTank(self, self.assets, self.groups, (200, 200), "Up", "Gold", 0)
@@ -44,6 +47,9 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.main.run = False
+                
+                if event.key == pygame.K_RETURN:
+                    self.level_num += 1
 
 
     def update(self):

@@ -17,12 +17,17 @@ class GameHud:
         self.player_2_active = False
         self.player_2_lives = 0
         self.player_2_lives_image = self.display_player_lives(self.player_2_lives, self.player_2_active)
+
+        # Player level information
+        self.level = 1
+        self.level_image = self.display_stage_number(self.level)
+        self.level_image_rect = self.level_image.get_rect(topleft=(14.5 * gc.image_size, 13 * gc.image_size))
     
     # Generate the base HUD overlay image
     def generate_hud_overlay_screen(self):
         """Generate a fixed hud overlay screen image"""
-        overlay_screen = pygame.Surface((gc.SCREENWIDTH, gc.SCREENHEIGHT))
-        overlay_screen.fill(gc.GREY)
+        overlay_screen = pygame.Surface((gc.SCREENWIDTH, gc.SCREENHEIGHT)) 
+        overlay_screen.fill(gc.GREY)       
         pygame.draw.rect(overlay_screen, gc.BLACK, (gc.GAME_SCREEN))
         overlay_screen.blit(self.images["info_panel"], (gc.INFO_PANEL_X, gc.INFO_PANEL_Y))
         overlay_screen.set_colorkey(gc.BLACK)
@@ -51,22 +56,44 @@ class GameHud:
         surface.blit(image_2, (gc.image_size // 2, 0))
         return surface
     
+    # Generate the stage level image
+    def display_stage_number(self, level):
+        width, height = gc.image_size, gc.image_size // 2
+        surface = pygame.Surface((width, height))
+        surface.fill(gc.BLACK)
+        if level < 10:
+            image_1 = self.images["num_0"]
+        else:
+            num = str(level)[0]
+            image_1 = self.images[f"num_{num}"]
+        surface.blit(image_1, (0, 0))
+        num = str(level)[-1]
+        image_2 = self.images[f"num_{num}"]
+        surface.blit(image_2, (gc.image_size // 2, 0))
+        return surface
+    
     def update(self):
         # Update thenumber of player lives available
         self.player_1_active = self.game.player_1_active
-        if self.player_1_active:
+        if self.player_1_active and getattr(self.game, "player2", None):
             if self.player_1_lives != self.game.player1.lives:
                 self.player_1_lives = self.game.player1.lives
                 self.player_1_lives_image = self.display_player_lives(self.player_1_lives, self.player_1_active)
         
         self.player_2_active = self.game.player_2_active
-        if self.player_2_active:
+        if self.player_2_active and getattr(self.game, "player2", None):
             if self.player_2_lives != self.game.player2.lives:
                 self.player_2_lives = self.game.player2.lives
                 self.player_2_lives_image = self.display_player_lives(self.player_2_lives, self.player_2_active)
+        
+        # Update the stage number image
+        if self.level != self.game.level_num:
+            self.level = self.game.level_num
+            self.level_image = self.display_stage_number(self.level)
 
 
     def draw(self, window):
         window.blit(self.hud_overlay, (0, 0))
         window.blit(self.player_1_lives_image, (14.5 * gc.image_size, 9.5 * gc.image_size))
         window.blit(self.player_2_lives_image, (14.5 * gc.image_size, 11 * gc.image_size))
+        window.blit(self.level_image, self.level_image_rect)
