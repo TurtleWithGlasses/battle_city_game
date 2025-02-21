@@ -12,7 +12,7 @@ class Bullet(pygame.sprite.Sprite):
         self.tanks = self.group["All_Tanks"]
         self.bullet_group = self.group["Bullets"]
 
-        # Bulley position and direction
+        # Bullet position and direction
         self.x_pos, self.y_pos = position
         self.direction = direction
 
@@ -62,7 +62,7 @@ class Bullet(pygame.sprite.Sprite):
     
     # Collisions
     def collide_edge_of_screen(self):
-        """Chech for collision with the screen edge"""
+        """Check for collision with the screen edge"""
         if self.rect.top <= gc.SCREEN_BORDER_TOP or \
             self.rect.bottom >= gc.SCREEN_BORDER_BOTTOM or \
             self.rect.left <= gc.SCREEN_BORDER_LEFT or \

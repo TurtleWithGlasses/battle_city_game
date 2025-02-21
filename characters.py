@@ -46,6 +46,7 @@ class Tank(pygame.sprite.Sprite):
         # Shoot cooldowns and bullet totals
         self.bullet_limit = 1
         self.bullet_sum = 0
+        self.shoot_timer = 0
 
         # Tank paralysis
         self.paralyzed = False
@@ -194,8 +195,11 @@ class Tank(pygame.sprite.Sprite):
     def shoot(self):
         if self.bullet_sum >= self.bullet_limit:
             return
+        if pygame.time.get_ticks() - self.shoot_timer < gc.BULLET_COOLDOWN:
+            return
         bullet = Bullet(self.groups, self, self.rect.center, self.direction, self.assets)
         self.bullet_sum += 1
+        self.shoot_timer = pygame.time.get_ticks()
     
     # Actions affecting tanks
     def paralyze_tank(self, paralysis_time):

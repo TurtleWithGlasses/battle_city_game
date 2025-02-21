@@ -30,6 +30,8 @@ GREEN = (0, 255, 0)
 TANK_SPEED = image_size // sprite_size
 TANK_PARALYSIS = 2000
 
+BULLET_COOLDOWN = 500
+
 # Spritesheet images and coordinates
 SPAWN_STAR = {"star_0": [(sprite_size * 16), (sprite_size * 6), sprite_size, sprite_size],
               "star_1": [(sprite_size * 17), (sprite_size * 6), sprite_size, sprite_size],
