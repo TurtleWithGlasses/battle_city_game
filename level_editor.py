@@ -1,5 +1,6 @@
 import pygame
 import gameconfig as gc
+from levels import LevelData
 
 
 class LevelEditor:
@@ -8,8 +9,10 @@ class LevelEditor:
         self.assets = assets
         self.active = True
 
-        self.level_data = None
+        self.level_data = LevelData()
         self.all_levels = []
+        for stage in self.level_data.level_data:
+            self.all_levels.append(stage)
 
         self.overlay_screen = self.draw_screen()
         self.matrix = self.create_level_matrix()
@@ -64,12 +67,18 @@ class LevelEditor:
                     self.icon_rect.y -= gc.image_size
                     if self.icon_rect.y <= gc.SCREEN_BORDER_TOP:
                         self.icon_rect.y = gc.SCREEN_BORDER_TOP
-                #  Cycle through insert pieces
+                # Cycle through insert pieces
                 if event.key == pygame.K_SPACE:
                     self.index += 1
                     if self.index >= len(self.inserts):
                         self.index = self.index % len(self.inserts)
                     self.insert_tile = self.inserts[self.index]
+                # Save level
+                if event.key == pygame.K_RETURN:
+                    self.validate_level()
+                    self.all_levels.append(self.matrix)
+                    self.level_data.save_level_data(self.all_levels)
+                    self.active = False
 
     def update(self):
         icon_grid_pos_col = (self.icon_rect.left - gc.SCREEN_BORDER_LEFT) // (gc.image_size//2)
@@ -122,3 +131,15 @@ class LevelEditor:
                 line.append(-1)
             matrix.append(line)
         return matrix
+
+    def validate_level(self):
+        for cell in gc.ENEMY_TANK_SPAWNS:
+            self.matrix[cell[1]][cell[0]] = -1
+        for cell in gc.PLAYER_TANK_SPAWNS:
+            self.matrix[cell[1]][cell[0]] = -1
+        for cell in gc.BASE:
+            self.matrix[cell[1]][cell[0]] = -1
+        self.matrix[24][12] = 999
+        for cell in gc.FORT:
+            if self.matrix[cell[1]][cell[0]] == -1:
+                self.matrix[cell[1]][cell[0]] = 432

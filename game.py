@@ -62,8 +62,9 @@ class Game:
                         self.player2.shoot()
                     
                 
-                if event.key == pygame.K_RETURN:
-                    Tank(self, self.assets, self.groups, (400, 400), "Down")
+                if event.key == pygame.K_RETURN and self.enemies > 0:
+                    new_tank = Tank(self, self.assets, self.groups, (400, 400), "Down")
+                    self.groups["All_Tanks"].add(new_tank)
                     self.enemies -= 1
 
 
