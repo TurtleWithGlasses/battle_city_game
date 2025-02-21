@@ -57,6 +57,11 @@ class Tank(pygame.sprite.Sprite):
         self.spawn_timer = pygame.time.get_ticks() # Overall spawn timer
         self.spawn_animation_timer = pygame.time.get_ticks() # Spawn star animation timer
 
+        # Tank image mask dictionary
+        self.mask_dict = self.get_various_masks()
+        self.mask = self.mask_dict[self.direction]
+        self.mask_image = self.mask.to_surface()
+        self.mask_direction = self.direction
 
     def input(self):
         pass
@@ -86,6 +91,7 @@ class Tank(pygame.sprite.Sprite):
         # If the tank is set to active, draw to screen
         if self.active:
             window.blit(self.image, self.rect)
+            # window.blit(self.mask_image, self.rect)
             pygame.draw.rect(window, gc.RED, self.rect, 1)
     
     def move_tank(self, direction):
@@ -130,6 +136,10 @@ class Tank(pygame.sprite.Sprite):
         image_listlength = len(self.tank_images[f"Tank_{self.tank_level}"][self.color][self.direction])
         self.frame_index = self.frame_index % image_listlength
         self.image = self.tank_images[f"Tank_{self.tank_level}"][self.color][self.direction][self.frame_index]
+        if self.mask_direction != self.direction:
+            self.mask_direction = self.direction
+            self.mask = self.mask_dict[self.mask_direction]
+            # self.mask_image = self.mask.to_surface()
     
     def spawn_animation(self):
         """Cycle through the spawn star images to stimulate a spawning icon"""
@@ -137,6 +147,14 @@ class Tank(pygame.sprite.Sprite):
         self.frame_index = self.frame_index % len(self.spawn_images)
         self.spawn_image = self.spawn_images[f"star_{self.frame_index}"]
         self.spawn_animation_timer = pygame.time.get_ticks()
+    
+    def get_various_masks(self):
+        """Creates and returns a dictionary of masks for all directions"""
+        images = {}
+        for direction in ["Up", "Down", "Left", "Right"]:
+            image_to_mask = self.tank_images[f"Tank_{self.tank_level}"][self.color][direction][0]
+            images.setdefault(direction, pygame.mask.from_surface(image_to_mask))
+        return images
 
     # Tank collision
     def tank_on_tank_collision(self):
