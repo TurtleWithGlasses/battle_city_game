@@ -3,6 +3,8 @@ import gameconfig as gc
 from game_assets import GameAssets
 from game import Game
 from level_editor import LevelEditor
+from levels import LevelData
+from start_screen import StartScreen
 
 
 class Main:
@@ -19,13 +21,18 @@ class Main:
         self.run = True
 
         self.assets = GameAssets()
+        self.levels = LevelData()
+
+        # Game start screen object and check
+        self.start_screen = StartScreen(self, self.assets)
+        self.start_screen_active = True
 
         # Game object loading
         self.game_on = False
         self.game = Game(self, self.assets, True, True)
 
-        # Level editor loading 
-        self.level_editor_on = True
+        # Level editor loading and check
+        self.level_editor_on = False
         self.level_creator = LevelEditor(self, self.assets)
 
     def run_game(self):
@@ -41,12 +48,16 @@ class Main:
         if self.game_on:
             self.game.input()
         
+        # Input controls for the start screen
+        if self.start_screen_active:
+            self.start_screen_active = self.start_screen.input()
+        
         # Input controls for when level creator is running
         if self.level_editor_on:
             self.level_creator.input()
             
         # Main game controls
-        if not self.game_on and not self.level_editor_on:
+        if not self.game_on and not self.level_editor_on and not self.start_screen_active:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.run = False
@@ -54,6 +65,10 @@ class Main:
     def update(self):
         """Update the program and all objects within"""
         self.clock.tick(gc.FPS)
+
+        # Start screen updating
+        if self.start_screen_active:
+            self.start_screen.update()
 
         # If game is running, update game
         if self.game_on:
@@ -66,6 +81,10 @@ class Main:
     def draw(self):
         """Handle all of the drawing of the game to the screen"""
         self.screen.fill(gc.BLACK)
+
+        # If self start screen active, draw the start screen
+        if self.start_screen_active:
+            self.start_screen.draw(self.screen)
 
         # If game is running, draw game screen
         if self.game_on:
