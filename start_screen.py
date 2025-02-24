@@ -15,6 +15,7 @@ class StartScreen:
         self.image = self.assets.start_screen
         self.rect = self.image.get_rect(topleft=(0,self.start_y))
         self.x, self.y = self.rect.topleft
+        self.speed = gc.SCREEN_SCROLL_SPEED
 
         # Options positions
         self.option_positions = [
@@ -40,6 +41,10 @@ class StartScreen:
                     self.main.run = False
                     return False
                 
+                if self.start_screen_active is False:
+                    self._complete_screen_position()
+                    return True
+                
                 if event.key == pygame.K_UP or event.key == pygame.K_w:
                     self._switch_option_main_menu(-1)
                 if event.key == pygame.K_DOWN or event.key == pygame.K_s:
@@ -50,7 +55,10 @@ class StartScreen:
         return True
 
     def update(self):
-        pass
+        # Check to see if screen is in position
+        if self._animate_screen_into_position() is False:
+            return 
+        self.start_screen_active = True
 
     def draw(self, window):
         window.blit(self.image, self.rect)
@@ -66,7 +74,26 @@ class StartScreen:
     def _selected_option_action(self):
         if self.token_index == 0:
             print("Start a new game with 1 player")
+            self.main.start_new_game(player1=True, player2=False)
         elif self.token_index == 1:
             print("Start a new game with 2 players")
+            self.main.start_new_game(player1=True, player2=True)
         elif self.token_index == 2:
             print("Start the construction mode.")
+            self.main.start_level_creator()
+    
+    def _animate_screen_into_position(self):
+        """Slide the start screen from the bottom up to the top. Return a bool when complete"""
+        if self.y == self.end_y:
+            return True
+        
+        self.y -= self.speed
+        if self.y < self.end_y:
+            self.y = self.end_y
+        self.rect.topleft = (0, self.y)
+        return False
+
+    def _complete_screen_position(self):
+        """Complete the screen scrolling animation immediately"""
+        self.y = self.end_y
+        self.rect.topleft = (0, self.y)

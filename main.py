@@ -95,6 +95,12 @@ class Main:
             self.level_creator.draw(self.screen)
 
         pygame.display.update()
+    
+    def start_new_game(self, player1, player2):
+        pass
+
+    def start_level_creator(self):
+        pass
 
 
 if __name__ == "__main__":
