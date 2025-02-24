@@ -2,6 +2,7 @@ import pygame
 import gameconfig as gc
 from characters import Tank, PlayerTank
 from game_hud import GameHud
+from random import choice, shuffle
 
 
 class Game:
@@ -24,15 +25,19 @@ class Game:
 
         # Level information
         self.level_num = 1
+        self.data = self.main.levels
 
         # Player objects
         if self.player_1_active:
-            self.player1 = PlayerTank(self, self.assets, self.groups, (200, 200), "Up", "Gold", 0)
+            self.player1 = PlayerTank(self, self.assets, self.groups, gc.PL1_position, "Up", "Gold", 0)
         if self.player_2_active:
-            self.player2 = PlayerTank(self, self.assets, self.groups, (400, 200), "Up", "Green", 1)
+            self.player2 = PlayerTank(self, self.assets, self.groups, gc.PL2_position, "Up", "Green", 1)
         
         # Number of enemy tanks
         self.enemies = gc.STD_ENEMIES
+
+        # Load the stage
+        self.create_new_stage()
 
         # Game over
         self.end_game = False
@@ -64,12 +69,10 @@ class Game:
                     if self.player_2_active:
                         self.player2.shoot()
                     
-                
                 if event.key == pygame.K_RETURN and self.enemies > 0:
                     new_tank = Tank(self, self.assets, self.groups, (400, 400), "Down")
                     self.groups["All_Tanks"].add(new_tank)
                     self.enemies -= 1
-
 
     def update(self):
         #Update the hud
@@ -95,3 +98,61 @@ class Game:
                     item.draw(window)
         else:
             print("[ERROR] Game assets are missing!")
+    
+    def create_new_stage(self):
+        # Retreives the specific level data
+        self.current_level_data = self.data.level_data[self.level_num-1]
+
+        # Number of enemy tanks to spawn in the stage
+        # self.enemies = random.choice([16,17,18,20])
+        self.enemies = 5
+
+        # Track the number of enemies killed back down to zero
+        self.enemies_killed = self.enemies
+        
+        # Load in the level data
+        self.load_level_data(self.current_level_data)
+
+        # Generating the spawn queue for the computer tanks
+        self.generate_spawn_queue()
+        self.spawn_pos_index = 0
+        self.spawn_queue = 0
+
+        if self.player_1_active:
+            self.player1.new_stage_spawn(gc.PL1_position)
+    
+    def load_level_data(self, level):
+        """Load level data"""
+        self.grid = []
+        for i, row in enumerate(level):
+            line = []
+            for j, tile in enumerate(row):
+                pos = (gc.SCREEN_BORDER_LEFT + (j * gc.image_size // 2),
+                       gc.SCREEN_BORDER_TOP + (i * gc.image_size // 2))
+                if int(tile) < 0:
+                    line.append(" ")
+                elif int(tile) == 432:
+                    line.append(f"{tile}")
+                elif int(tile) == 482:
+                    line.append(f"{tile}")
+                elif int(tile) == 483:
+                    line.append(f"{tile}")
+                elif int(tile) == 484:
+                    line.append(f"{tile}")
+                elif int(tile) == 533:
+                    line.append(f"{tile}")
+                else:
+                    line.append(f"{tile}")
+            self.grid.append(line)
+        for row in self.grid:
+            print(row)
+    
+    def generate_spawn_queue(self):
+        """Generate a list of tanks that will be spawning during the level"""
+        self.spawn_queue_ratios = gc.tank_spawn_queue[f"queue_{str((self.level_num-1 % 36) // 3)}"]
+        self.spawn_queue = []
+
+        for level, ratio in enumerate(self.spawn_queue_ratios):
+            for i in range(int(round(self.enemies * (ratio / 100)))):
+                self.spawn_queue.append(f"level_{level}")
+        shuffle(self.spawn_queue)
