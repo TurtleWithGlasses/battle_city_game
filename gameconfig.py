@@ -32,8 +32,12 @@ GREEN = (0, 255, 0)
 # Tank variables
 TANK_SPEED = image_size // sprite_size
 TANK_PARALYSIS = 2000
-PL1_position = (SCREEN_BORDER_LEFT + image_size //2 * 8, SCREEN_BORDER_TOP + image_size //2 * 24)
-PL2_position = (SCREEN_BORDER_LEFT + image_size //2 * 16, SCREEN_BORDER_TOP + image_size //2 * 24)
+TANK_SPAWNING_TIME = 3000
+PL1_position = (SCREEN_BORDER_LEFT + image_size //2 * 8, SCREEN_BORDER_TOP + image_size // 2 * 24)
+PL2_position = (SCREEN_BORDER_LEFT + image_size //2 * 16, SCREEN_BORDER_TOP + image_size // 2 * 24)
+Pc1_position = (SCREEN_BORDER_LEFT + image_size // 2 * 12, SCREEN_BORDER_TOP + image_size // 2 * 0)
+Pc2_position = (SCREEN_BORDER_LEFT + image_size // 2 * 24, SCREEN_BORDER_TOP + image_size // 2 * 0)
+Pc3_position = (SCREEN_BORDER_LEFT + image_size // 2 * 0, SCREEN_BORDER_TOP + image_size // 2 * 0)
 
 BULLET_COOLDOWN = 500
 
@@ -120,6 +124,13 @@ PLAYER_TANK_SPAWNS = [(8, 24), (8, 25), (9, 24), (9, 25),   # player 1 spawn
                       (16, 24), (16, 25), (17, 24), (17, 25)] # player 2 spawn
 BASE = [(12, 24), (12, 25), (13, 24), (13, 25)] # base
 FORT = [(11, 25), (11, 24), (11, 23), (12, 23), (13, 23), (14, 23), (14, 24), (14, 25)]
+
+Tank_Criteria = {
+    "level_0": {"image": 4, "health": 1, "speed": 0.5, "cooldown": 1, "power": 1, "score": 100},
+    "level_1": {"image": 5, "health": 1, "speed": 1, "cooldown": 1, "power": 1, "score": 200},
+    "level_2": {"image": 6, "health": 1, "speed": 0.5, "cooldown": 1, "power": 2, "score": 300},
+    "level_3": {"image": 7, "health": 4, "speed": 0.5, "cooldown": 1, "power": 2, "score": 400},
+}
 
 tank_spawn_queue = {"queue_0": [90, 10, 0, 0],
                     "queue_1": [80, 20, 0, 0],
