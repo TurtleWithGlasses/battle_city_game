@@ -34,6 +34,9 @@ class Game:
         # Number of enemy tanks
         self.enemies = gc.STD_ENEMIES
 
+        # Game over
+        self.end_game = False
+
     
     def input(self):
         """Handles inputs for the game when it's running.."""
@@ -51,7 +54,7 @@ class Game:
             # Keyboard shortcut to quit game
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    self.main.run = False
+                    self.end_game = True
                 
                 if event.key == pygame.K_SPACE:
                     if self.player_1_active:

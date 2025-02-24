@@ -51,6 +51,7 @@ class StartScreen:
                     self._switch_option_main_menu(+1)
                 if event.key == pygame.K_RETURN or event.key == pygame.K_SPACE:
                     self._selected_option_action()
+                    return False
 
         return True
 
@@ -73,13 +74,10 @@ class StartScreen:
     
     def _selected_option_action(self):
         if self.token_index == 0:
-            print("Start a new game with 1 player")
             self.main.start_new_game(player1=True, player2=False)
         elif self.token_index == 1:
-            print("Start a new game with 2 players")
             self.main.start_new_game(player1=True, player2=True)
         elif self.token_index == 2:
-            print("Start the construction mode.")
             self.main.start_level_creator()
     
     def _animate_screen_into_position(self):
