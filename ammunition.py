@@ -40,6 +40,8 @@ class Bullet(pygame.sprite.Sprite):
         self.collide_with_tank()
         # Check for bullet collision
         self.collision_with_bullet()
+        # Check for collision with destructable tiles
+        self.collision_with_obastacle()
 
     def draw(self, window):
         # Draw bullet on the screen
@@ -105,7 +107,14 @@ class Bullet(pygame.sprite.Sprite):
                 bullet.kill()
                 self.update_owner()
                 self.kill()
-                break            
+                break   
+
+    def collision_with_obastacle(self):
+        """Check for bullet collision with any of the tiles"""
+        obstacle_collide = pygame.sprite.spritecollide(self, self.group["Destructable_Tiles"], False)
+        for obstacle in obstacle_collide:
+            obstacle.hit_by_bullet(self)
+        # self.kill()
 
     def update_owner(self):
         if self.owner.bullet_sum > 0:
