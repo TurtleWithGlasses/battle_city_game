@@ -4,6 +4,7 @@ from characters import Tank, PlayerTank
 from game_hud import GameHud
 from random import choice, shuffle
 from tile import BrickTile, SteelTile, ForestTile, IceTile, WaterTile
+from fade_animate import Fade
 
 
 class Game:
@@ -36,6 +37,9 @@ class Game:
         self.level_num = 1
         self.data = self.main.levels
 
+        # Level Fade
+        self.fade = Fade(self, self.assets, 10)
+
         # Player objects
         if self.player_1_active:
             self.player1 = PlayerTank(self, self.assets, self.groups, gc.PL1_position, "Up", "Gold", 0)
@@ -52,6 +56,7 @@ class Game:
 
         # Game over
         self.end_game = False
+        self.game_on = False
 
     
     def input(self):
@@ -88,6 +93,12 @@ class Game:
     def update(self):
         #Update the hud
         self.hud.update()
+        if self.fade.fade_active:
+            self.fade.update()
+            if not self.fade.fade_active:
+                for tank in self.groups["All_Tanks"]:
+                    tank.spawn_timer = pygame.time.get_ticks()
+            return
         # if self.player_1_active:
         #     self.player1.update()
         # if self.player_2_active:
@@ -111,10 +122,15 @@ class Game:
             for dict_key in self.groups.keys():
                 if dict_key == "Impassable_Tiles":
                     continue
+                if self.fade.fade_active is True and (dict_key == "All_Tanks" or  dict_key == "Player_Tanks"):
+                    continue
                 for item in self.groups[dict_key]:
                     item.draw(window)
         else:
             print("[ERROR] Game assets are missing!")
+        
+        if self.fade.fade_active:
+            self.fade.draw(window)
     
     def create_new_stage(self):
         # Reset the various sprite groups back to Zero
@@ -135,6 +151,10 @@ class Game:
         
         # Load in the level data
         self.load_level_data(self.current_level_data)
+
+        self.fade.level = self.level_num
+        self.fade.stage_image = self.fade.create_stage_image()
+        self.fade.fade_active = True
 
         # Generating the spawn queue for the computer tanks
         self.generate_spawn_queue()
