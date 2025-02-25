@@ -95,7 +95,18 @@ class Tank(pygame.sprite.Sprite):
             window.blit(self.image, self.rect)
             # window.blit(self.mask_image, self.rect)
             pygame.draw.rect(window, gc.RED, self.rect, 1)
-    
+
+    # Tank movement
+    def grid_alignment_movement(self, pos):
+        if pos % (gc.image_size // 2) != 0:
+            if pos % (gc.image_size // 2) < gc.image_size // 4:
+                pos -= (pos % (gc.image_size // 4))
+            elif pos % (gc.image_size // 2) > gc.image_size // 4:
+                pos += (gc.image_size // 4) - (pos % (gc.image_size // 4))
+            else:
+                return pos
+        return pos
+
     def move_tank(self, direction):
         """Move the tank in the passed direction"""
         if self.spawning:
@@ -109,18 +120,22 @@ class Tank(pygame.sprite.Sprite):
 
         if direction == "Up":
             self.y_pos -= self.tank_speed
+            self.x_pos = self.grid_alignment_movement(self.x_pos)
             if self.y_pos < gc.SCREEN_BORDER_TOP:
                 self.y_pos = gc.SCREEN_BORDER_TOP
         elif direction == "Down":
             self.y_pos += self.tank_speed
+            self.x_pos = self.grid_alignment_movement(self.x_pos)
             if self.y_pos + self.height > gc.SCREEN_BORDER_BOTTOM:
                 self.y_pos = gc.SCREEN_BORDER_BOTTOM - self.height
         elif direction == "Left":
             self.x_pos -= self.tank_speed
+            self.y_pos = self.grid_alignment_movement(self.y_pos)
             if self.x_pos < gc.SCREEN_BORDER_LEFT:
                 self.x_pos = gc.SCREEN_BORDER_LEFT
         elif direction == "Right":
             self.x_pos += self.tank_speed
+            self.y_pos = self.grid_alignment_movement(self.y_pos)
             if self.x_pos + self.width > gc.SCREEN_BORDER_RIGHT:
                 self.x_pos = gc.SCREEN_BORDER_RIGHT - self.width
         
@@ -130,6 +145,8 @@ class Tank(pygame.sprite.Sprite):
         self.tank_movement_animation()
         # Check for tank collisions with other tanks
         self.tank_on_tank_collision()
+        # Check for tank collisions with obstacles
+        self.tank_collisions_with_obstacles()
     
     # Tank animations
     def tank_movement_animation(self):
@@ -191,7 +208,24 @@ class Tank(pygame.sprite.Sprite):
                     self.rect.left < tank.rect.right and self.rect.right > tank.rect.left:
                     self.rect.bottom = tank.rect.top
                     self.y_pos = self.rect.y
-        
+
+    def tank_collisions_with_obstacles(self):
+        """Perform collision checks with tanks and obstacles"""
+        wall_collision = pygame.sprite.spritecollide(self, self.groups["Impassable_Tiles"], False)
+        for obstacle in wall_collision:
+            if self.direction == "Right" and self.rect.right >= obstacle.rect.left:
+                self.rect.right = obstacle.rect.left
+                self.x_pos = self.rect.x - self.tank_speed  # Move back slightly
+            elif self.direction == "Left" and self.rect.left <= obstacle.rect.right:
+                self.rect.left = obstacle.rect.right
+                self.x_pos = self.rect.x + self.tank_speed
+            elif self.direction == "Down" and self.rect.bottom >= obstacle.rect.top:
+                self.rect.bottom = obstacle.rect.top
+                self.y_pos = self.rect.y - self.tank_speed
+            elif self.direction == "Up" and self.rect.top <= obstacle.rect.bottom:
+                self.rect.top = obstacle.rect.bottom
+                self.y_pos = self.rect.y + self.tank_speed 
+
     # Tank shooting
     def shoot(self):
         if self.bullet_sum >= self.bullet_limit:

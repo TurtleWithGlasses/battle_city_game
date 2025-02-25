@@ -3,6 +3,7 @@ import gameconfig as gc
 from characters import Tank, PlayerTank
 from game_hud import GameHud
 from random import choice, shuffle
+from tile import BrickTile
 
 
 class Game:
@@ -16,7 +17,9 @@ class Game:
         self.groups = {
             "Player_Tanks": pygame.sprite.Group(),
             "All_Tanks": pygame.sprite.Group(),
-            "Bullets": pygame.sprite.Group()
+            "Bullets": pygame.sprite.Group(),
+            "Destructable_Tiles": pygame.sprite.Group(),
+            "Impassable_Tiles": pygame.sprite.Group()
             }
 
         # Player attributes
@@ -98,10 +101,10 @@ class Game:
         """Drawing to the screen"""
         if self.assets:
             self.hud.draw(window)
-            if self.player_1_active:
-                self.player1.draw(window)
-            if self.player_2_active:
-                self.player2.draw(window)
+            # if self.player_1_active:
+            #     self.player1.draw(window)
+            # if self.player_2_active:
+            #     self.player2.draw(window)
             for dict_key in self.groups.keys():
                 for item in self.groups[dict_key]:
                     item.draw(window)
@@ -151,6 +154,8 @@ class Game:
                     line.append(" ")
                 elif int(tile) == 432:
                     line.append(f"{tile}")
+                    map_tile = BrickTile(pos, self.groups["Destructable_Tiles"], self.assets.brick_tiles)
+                    self.groups["Impassable_Tiles"].add(map_tile)
                 elif int(tile) == 482:
                     line.append(f"{tile}")
                 elif int(tile) == 483:
