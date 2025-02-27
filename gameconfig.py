@@ -41,6 +41,8 @@ Pc3_position = (SCREEN_BORDER_LEFT + image_size // 2 * 0, SCREEN_BORDER_TOP + im
 
 BULLET_COOLDOWN = 500
 
+TRANSITION_TIMER = 3000
+
 # Spritesheet images and coordinates
 SPAWN_STAR = {"star_0": [(sprite_size * 16), (sprite_size * 6), sprite_size, sprite_size],
               "star_1": [(sprite_size * 17), (sprite_size * 6), sprite_size, sprite_size],

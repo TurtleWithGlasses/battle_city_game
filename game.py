@@ -2,9 +2,10 @@ import pygame
 import gameconfig as gc
 from characters import Tank, PlayerTank
 from game_hud import GameHud
-from random import choice, shuffle
+from random import shuffle
 from tile import BrickTile, SteelTile, ForestTile, IceTile, WaterTile
 from fade_animate import Fade
+from score_screen import ScoreScreen
 
 
 class Game:
@@ -35,10 +36,14 @@ class Game:
 
         # Level information
         self.level_num = 1
+        self.level_complete = False
+        self.level_transition_timer = None
         self.data = self.main.levels
 
         # Level Fade
         self.fade = Fade(self, self.assets, 10)
+        # Stage Score Screen
+        self.score_screen = ScoreScreen(self, self.assets)
 
         # Player objects
         if self.player_1_active:
@@ -110,11 +115,27 @@ class Game:
                 item.update()
 
         self.spawn_enemy_tanks()
-    
+
+        # Check to see if stage enemies have all been killed
+        if self.enemies_killed <= 0 and self.level_complete is False:
+            self.level_complete = True
+            self.level_transition_timer = pygame.time.get_ticks()
+        
+        # Stage complete, load next stage
+        if self.level_complete:
+            if pygame.time.get_ticks() - self.level_transition_timer >= gc.TRANSITION_TIMER:
+                self.stage_transition()
+                # self.level_num += 1
+                # self.create_new_stage()
+                    
     def draw(self, window):
         """Drawing to the screen"""
         if self.assets:
             self.hud.draw(window)
+            
+            if self.score_screen.active:
+                self.score_screen.draw(window)
+                return
             # if self.player_1_active:
             #     self.player1.draw(window)
             # if self.player_2_active:
@@ -144,13 +165,14 @@ class Game:
 
         # Number of enemy tanks to spawn in the stage
         # self.enemies = random.choice([16,17,18,20])
-        self.enemies = 5
+        self.enemies = 3
 
         # Track the number of enemies killed back down to zero
         self.enemies_killed = self.enemies
         
         # Load in the level data
         self.load_level_data(self.current_level_data)
+        self.level_complete = False
 
         self.fade.level = self.level_num
         self.fade.stage_image = self.fade.create_stage_image()
@@ -223,3 +245,14 @@ class Game:
             self.spawn_pos_index += 1
             self.spawn_queue_index += 1
             self.enemies -= 1
+
+    def stage_transition(self):
+        if not self.score_screen.active:
+            self.score_screen.timer = pygame.time.get_ticks()
+        self.score_screen.active = True
+        self.score_screen.update()
+    
+    def change_level(self):
+        self.level_num += 1
+        self.level_num = self.level_num % len(self.data.level_data)
+        self.create_new_stage()

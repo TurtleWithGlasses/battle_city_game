@@ -18,6 +18,11 @@ class Tank(pygame.sprite.Sprite):
         # Add tank object to the sprite group
         self.tank_group.add(self)
 
+        #Enemy tank criteria dict
+        levels = {0: None, 4: "level_0", 5: "level_1", 6: "level_2", 7: "level_3"}
+        if levels:
+            self.level = levels[tank_level]
+
         # Tank images
         self.tank_images = self.assets.tank_images
         self.spawn_images = self.assets.spawn_star_images
@@ -249,6 +254,7 @@ class Tank(pygame.sprite.Sprite):
 
         if self.tank_health <= 0:
             self.kill()
+            self.game.enemies_killed -= 1
             return
 
 class PlayerTank(Tank):
@@ -256,6 +262,8 @@ class PlayerTank(Tank):
         super().__init__(game, assets, groups, position, direction, False, color, tank_level)
         self.player_group.add(self)
         self.lives = 3
+        # Level score tracking
+        self.score_list = []
     
     def input(self, keypressed):
         """Move the player tanks"""
@@ -281,6 +289,11 @@ class PlayerTank(Tank):
     
     def new_stage_spawn(self, spawn_pos):
         self.tank_group.add(self)
+        self.spawning = True
+        self.active = False
+        self.direction = "Up"
         self.x_pos, self.y_pos = spawn_pos
+        self.image = self.tank_images[f"Tank_{self.tank_level}"][self.color][self.direction][self.frame_index]
         self.rect.topleft = (self.x_pos, self.y_pos)
+        self.score_list.clear()
         

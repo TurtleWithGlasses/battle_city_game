@@ -17,7 +17,7 @@ class Fade:
         self.timer = pygame.time.get_ticks()
 
         self.top_rect = pygame.Rect(0, 0 - gc.SCREENHEIGHT // 2, gc.SCREENWIDTH, gc.SCREENWIDTH // 2)
-        self.top_rect_start_y = 0 - gc.SCREENHEIGHT // 2
+        self.top_rect_start_y = self.top_rect.bottom
         self.top_rect_end_y = gc.SCREENHEIGHT // 2
         self.top_y = self.top_rect.bottom
 
