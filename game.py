@@ -29,7 +29,9 @@ class Game:
 
         # Player attributes
         self.player_1_active = player_1
+        self.player_1_score = 0
         self.player_2_active = player_2
+        self.player_2_score = 0
 
         # Game HUD
         self.hud = GameHud(self, self.assets)
@@ -249,10 +251,18 @@ class Game:
     def stage_transition(self):
         if not self.score_screen.active:
             self.score_screen.timer = pygame.time.get_ticks()
+            if self.player_1_active:
+                self.score_screen.p1_score = self.player_1_score
+                self.score_screen.p1_kill_list = sorted(self.player1.score_list)
+            if self.player_2_active:
+                self.score_screen.p2_score = self.player_2_score
+                self.score_screen.p2_kill_list = sorted(self.player2.score_list)
         self.score_screen.active = True
         self.score_screen.update()
     
-    def change_level(self):
+    def change_level(self, p1_score, p2_score):
         self.level_num += 1
         self.level_num = self.level_num % len(self.data.level_data)
+        self.player_1_score = p1_score
+        self.player_2_score = p2_score
         self.create_new_stage()

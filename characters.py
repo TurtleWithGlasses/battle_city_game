@@ -20,7 +20,7 @@ class Tank(pygame.sprite.Sprite):
 
         #Enemy tank criteria dict
         levels = {0: None, 4: "level_0", 5: "level_1", 6: "level_2", 7: "level_3"}
-        if levels:
+        if enemy:
             self.level = levels[tank_level]
 
         # Tank images
