@@ -11,13 +11,14 @@ class ScoreScreen:
         
         self.active = False
         self.timer = pygame.time.get_ticks()
+        self.score_timer = 100
 
         self.images = self.assets.score_sheet_images
 
         # Player score totals and score lists
-        self.p1_score = 3000
+        self.p1_score = 0
         self.p1_kill_list = []
-        self.p2_score = 3500
+        self.p2_score = 0
         self.p2_kill_list = []
 
         self.top_score = 0
@@ -36,11 +37,27 @@ class ScoreScreen:
         self.p2_tank_num_images, self.p2_tank_score_images = self.generate_tank_kill_images(20, 25, self.pl_2_score_values)
         
     def update(self):
-        if not pygame.time.get_ticks() - self.timer >= 10000:
+        if not pygame.time.get_ticks() - self.timer >= 3000:
             return
         
-        self.active = False
-        self.game.change_level(self.p1_score, self.p2_score)
+        if len(self.p1_kill_list) > 0:
+            if pygame.time.get_ticks() - self.timer >= 100:
+                score = self.p1_kill_list.pop(0)
+                self.update_score(score, "player1")
+                self.score_timer = pygame.time.get_ticks()
+                return
+        
+        if len(self.p2_kill_list) > 0:
+            if pygame.time.get_ticks() - self.timer >= 100:
+                score = self.p2_kill_list.pop(0)
+                self.update_score(score, "player2")
+                self.score_timer = pygame.time.get_ticks()
+                return
+        
+        if pygame.time.get_ticks() - self.score_timer >= 3000:
+            self.active = False
+            self.game.change_level(self.p1_score, self.p2_score)
+            self.clear_for_new_stage()
     
     def draw(self, window):
         window.fill(gc.BLACK)
@@ -147,3 +164,31 @@ class ScoreScreen:
             tank_score_imgs[f"line{i+1}"].append(self.number_image(pl_dict[f"line{i+1}"][0], self.white_nums))
             tank_score_imgs[f"line{i+1}"].append((size * x2 - tank_score_imgs[f"line{i+1}"][0].get_width(), size * y_pos[i]))
         return tank_num_imgs, tank_score_imgs
+    
+    def update_score(self, score, player):
+        score_dict = {100: "line1", 200: "line2", 300: "line3", 400: "line4"}
+        if player == "player1":
+            self.pl_1_score_values[score_dict[score]][0] += 1
+            self.pl_1_score_values[score_dict[score]][1] += score
+            self.pl_1_score_values["total"] += 1
+            self.p1_score += score
+            self.p1_tank_num_images, self.p1_tank_score_images = self.generate_tank_kill_images(14, 7, self.pl_1_score_values)
+        else:
+            self.pl_2_score_values[score_dict[score]][0] += 1
+            self.pl_2_score_values[score_dict[score]][1] += score
+            self.pl_2_score_values["total"] += 1
+            self.p2_score += score
+            self.p2_tank_num_images, self.p2_tank_score_images = self.generate_tank_kill_images(20, 25, self.pl_2_score_values)
+        self.update_player_score_images()
+    
+    def clear_for_new_stage(self):
+        self.p1_kill_list = []
+        self.p2_kill_list = []
+
+        self.pl_1_score_values = {"line1": [0, 0], "line2": [0, 0], "line3": [0, 0], "line4": [0, 0], "total": 0}
+        self.pl_2_score_values = {"line1": [0, 0], "line2": [0, 0], "line3": [0, 0], "line4": [0, 0], "total": 0}
+
+        self.p1_tank_num_images, self.p1_tank_score_images = self.generate_tank_kill_images(14, 7, self.pl_1_score_values)
+        self.p2_tank_num_images, self.p2_tank_score_images = self.generate_tank_kill_images(20, 25, self.pl_2_score_values)
+        
+        

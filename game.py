@@ -168,7 +168,7 @@ class Game:
 
         # Number of enemy tanks to spawn in the stage
         # self.enemies = random.choice([16,17,18,20])
-        self.enemies = 1
+        self.enemies = 10
 
         # Track the number of enemies killed back down to zero
         self.enemies_killed = self.enemies
