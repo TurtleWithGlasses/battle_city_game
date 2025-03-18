@@ -28,6 +28,7 @@ class Game:
             }
 
         # Player attributes
+        self.top_score = 20000
         self.player_1_active = player_1
         self.player_1_score = 0
         self.player_2_active = player_2
@@ -167,7 +168,7 @@ class Game:
 
         # Number of enemy tanks to spawn in the stage
         # self.enemies = random.choice([16,17,18,20])
-        self.enemies = 3
+        self.enemies = 1
 
         # Track the number of enemies killed back down to zero
         self.enemies_killed = self.enemies
@@ -257,6 +258,7 @@ class Game:
             if self.player_2_active:
                 self.score_screen.p2_score = self.player_2_score
                 self.score_screen.p2_kill_list = sorted(self.player2.score_list)
+            self.score_screen.update_basic_info(self.top_score, self.level_num)
         self.score_screen.active = True
         self.score_screen.update()
     

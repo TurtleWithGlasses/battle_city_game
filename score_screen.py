@@ -20,10 +20,21 @@ class ScoreScreen:
         self.p2_score = 3500
         self.p2_kill_list = []
 
+        self.top_score = 0
+        self.stage = 0
+
         self.scoresheet = self.generate_scoresheet_screen()
+        # Top score and stage number images creation
+        self._create_top_score_and_stage_number_images()
         # Update player socre images with the last player score
         self.update_player_score_images()
 
+        self.pl_1_score_values = {"line1": [0, 0], "line2": [0, 0], "line3": [0, 0], "line4": [0, 0], "total": 0}
+        self.pl_2_score_values = {"line1": [0, 0], "line2": [0, 0], "line3": [0, 0], "line4": [0, 0], "total": 0}
+
+        self.p1_tank_num_images, self.p1_tank_score_images = self.generate_tank_kill_images(14, 7, self.pl_1_score_values)
+        self.p2_tank_num_images, self.p2_tank_score_images = self.generate_tank_kill_images(20, 25, self.pl_2_score_values)
+        
     def update(self):
         if not pygame.time.get_ticks() - self.timer >= 10000:
             return
@@ -34,12 +45,23 @@ class ScoreScreen:
     def draw(self, window):
         window.fill(gc.BLACK)
         window.blit(self.scoresheet, (0, 0))
+        window.blit(self.hi_score_nums_total, self.hi_score_nums_rect)
+        window.blit(self.stage_num, self.stage_num_rect)
 
         if self.game.player_1_active:
             window.blit(self.pl_1_score, self.pl_1_score_rect)
+            for value in self.p1_tank_num_images.values():
+                window.blit(value[0], value[1])
+            for value in self.p1_tank_score_images.values():
+                window.blit(value[0], value[1])
         
         if self.game.player_2_active:
             window.blit(self.pl_2_score, self.pl_2_score_rect)
+            for value in self.p2_tank_num_images.values():
+                window.blit(value[0], value[1])
+            for value in self.p2_tank_score_images.values():
+                window.blit(value[0], value[1])
+
     
     def generate_scoresheet_screen(self):
         """Generate a basic template screen for the score card transition"""
@@ -91,3 +113,37 @@ class ScoreScreen:
             self.pl_2_score_rect = self.pl_2_score.get_rect(
                 topleft=(gc.image_size // 2 * 29 - self.pl_2_score.get_width(), gc.image_size // 2 * 10)
         )
+    
+    def _create_top_score_and_stage_number_images(self):
+        self.hi_score_nums_total = self.number_image(self.top_score, self.orange_nums)
+        self.hi_score_nums_rect = self.hi_score_nums_total.get_rect(topleft=(gc.image_size//2 * 19, gc.image_size//2 * 4))
+        self.stage_num = self.number_image(self.stage, self.white_nums)
+        self.stage_num_rect = self.stage_num.get_rect(topleft=(gc.image_size//2 * 19, gc.image_size//2 * 6))
+    
+    def update_basic_info(self, top_score, stage_number):
+        self.top_score = top_score
+        self.stage = stage_number
+        self._create_top_score_and_stage_number_images()
+    
+    def generate_tank_kill_images(self, x1, x2, pl_dict):
+        """Generate a dictionary of images and x/y coordinates for values"""
+        y_pos = [12.5, 15, 17.5, 20]
+        size = gc.image_size // 2
+
+        # Generate the number images for the tank numbers
+        tank_num_imgs = {}
+        for i in range(4):
+            tank_num_imgs[f"line{i+1}"] = []
+            tank_num_imgs[f"line{i+1}"].append(self.number_image(pl_dict[f"line{i+1}"][0], self.white_nums))
+            tank_num_imgs[f"line{i+1}"].append((size * x1 - tank_num_imgs[f"line{i+1}"][0].get_width(), size * y_pos[i]))
+        tank_num_imgs["total"] = []
+        tank_num_imgs["total"].append(self.number_image(pl_dict["total"], self.white_nums))
+        tank_num_imgs["total"].append((size * x1 - tank_num_imgs["total"][0].get_width(), size * 22.5))
+
+        # Generate images for tank score per line
+        tank_score_imgs = {}
+        for i in range(4):
+            tank_score_imgs[f"line{i+1}"] = []
+            tank_score_imgs[f"line{i+1}"].append(self.number_image(pl_dict[f"line{i+1}"][0], self.white_nums))
+            tank_score_imgs[f"line{i+1}"].append((size * x2 - tank_score_imgs[f"line{i+1}"][0].get_width(), size * y_pos[i]))
+        return tank_num_imgs, tank_score_imgs
