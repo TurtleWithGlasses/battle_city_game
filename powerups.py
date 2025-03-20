@@ -13,7 +13,8 @@ class PowerUps(pygame.sprite.Sprite):
         self.groups = groups
         self.groups["Power_Ups"].add(self)
 
-        self.power_up = self.randomly_select_power_up()
+        # self.power_up = self.randomly_select_power_up()
+        self.power_up = "shield"
         self.power_up_timer = pygame.time.get_ticks()
 
         self.x_pos = random.randint(gc.SCREEN_BORDER_LEFT, gc.SCREEN_BORDER_RIGHT - gc.image_size)
@@ -32,11 +33,18 @@ class PowerUps(pygame.sprite.Sprite):
     def power_up_collected(self):
         self.kill()
     
+    def shield(self, player):
+        """The player tank is protected by a shield for a certain amount of time"""
+        player.shield_start = True
+
+    
     def update(self):
         if pygame.time.get_ticks() - self.power_up_timer >= 5000:
             self.kill()
         player_tank = pygame.sprite.spritecollideany(self, self.groups["Player_Tanks"])
         if player_tank:
+            if self.power_up == "shield":
+                self.shield(player_tank)
             print(self.power_up)
             self.power_up_collected()
     

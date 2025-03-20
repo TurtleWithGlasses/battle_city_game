@@ -304,6 +304,17 @@ class PlayerTank(Tank):
         self.game_over= False
         # Level score tracking
         self.score_list = []
+
+        # Shield
+        self.shield_start = True
+        self.shield = False
+        self.shield_time_limit = 5000
+        self.shield_timer = pygame.time.get_ticks()
+        self.shield_images = self.assets.shield_images
+        self.shield_img_index = 0
+        self.shield_anim_timer = pygame.time.get_ticks()
+        self.shield_image = self.shield_images[f"shield_{self.shield_img_index+1}"]
+        self.shield_image_rect = self.shield_image.get_rect(topleft=(self.rect.topleft))
     
     def input(self, keypressed):
         """Move the player tanks"""
@@ -332,12 +343,31 @@ class PlayerTank(Tank):
     def update(self):
         if self.game_over:
             return
+        # Tank is done spawning in, startup shield must be activated
+        if not self.spawning:
+            if self.shield_start:
+                self.shield_timer = pygame.time.get_ticks()
+                self.shield_start = False
+                self.shield = True
+            # Shield is currently active, shield image animations
+            if self.shield:
+                if pygame.time.get_ticks() - self.shield_anim_timer >= 50:
+                    self.shield_img_index += 1
+                    self.shield_anim_timer = pygame.time.get_ticks()
+                self.shield_img_index = self.shield_img_index % 2
+                self.shield_image = self.shield_images[f"shield_{self.shield_img_index + 1}"]
+                self.shield_image_rect.topleft = self.rect.topleft
+                # Check if the shield timer has run out
+                if pygame.time.get_ticks() - self.shield_time_limit >= self.shield_timer:
+                    self.shield = False
         super().update()
 
     def draw(self, window):
         if self.game_over:
             return
         super().draw(window)
+        if self.shield and not self.spawning:
+            window.blit(self.shield_image, self.shield_image_rect)
 
     def shoot(self):
         if self.game_over:
@@ -345,6 +375,8 @@ class PlayerTank(Tank):
         super().shoot()
     
     def destroy_tank(self):
+        if self.shield:
+            return
         if self.dead or self.game_over:
             return
         self.dead = True
@@ -357,6 +389,7 @@ class PlayerTank(Tank):
         self.tank_group.add(self)
         self.spawning = True
         self.active = False
+        self.shield_start = True
         self.direction = "Up"
         self.x_pos, self.y_pos = spawn_pos
         self.image = self.tank_images[f"Tank_{self.tank_level}"][self.color][self.direction][self.frame_index]
@@ -367,6 +400,7 @@ class PlayerTank(Tank):
         self.spawning = True
         self.active = False
         self.spawn_timer = pygame.time.get_ticks()
+        self.shield_start = True
         self.direction = "Up"
         self.x_pos, self.y_pos = self.spawn_pos
         self.image = self.tank_images[f"Tank_{self.tank_level}"][self.color][self.direction][self.frame_index]

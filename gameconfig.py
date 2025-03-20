@@ -50,7 +50,7 @@ SPAWN_STAR = {"star_0": [(sprite_size * 16), (sprite_size * 6), sprite_size, spr
               "star_3": [(sprite_size * 19), (sprite_size * 6), sprite_size, sprite_size]}
 
 SHIELD = {"shield_1": [(sprite_size * 16), (sprite_size * 9), 16, 16],
-          "shield_2": [(sprite_size * 16), (sprite_size * 9), 16, 16]}
+          "shield_2": [(sprite_size * 17), (sprite_size * 9), 16, 16]}
 
 POWER_UPS = {"shield": [(16 * 16), (16 * 7), 16, 16],
              "freeze": [(16 * 17), (16 * 7), 16, 16],
