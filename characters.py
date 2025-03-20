@@ -52,7 +52,7 @@ class Tank(pygame.sprite.Sprite):
         self.bullet_speed = gc.TANK_SPEED * (3 * self.bullet_speed_modifier)
         self.score = 100 if not self.level else gc.Tank_Criteria[self.level]["score"]
         self.enemy = enemy
-        self.tank_health = 1
+        self.tank_health = 1 if not self.level else gc.Tank_Criteria[self.level]["health"]
 
         # Tank image, rectangle and frame index
         self.frame_index = 0
@@ -286,6 +286,12 @@ class Tank(pygame.sprite.Sprite):
             self.kill()
             self.game.enemies_killed -= 1
             return
+        if self.tank_health == 3:
+            self.color = "Green"
+        elif self.tank_health == 2:
+            self.color = "Gold"
+        elif self.tank_health == 1:
+            self.color = "Silver"
 
 class PlayerTank(Tank):
     def __init__(self, game, assets, groups, position, direction, color, tank_level):
@@ -379,6 +385,11 @@ class EnemyTank(Tank):
             "Up": MyRect(self.x_pos, self.y_pos - (self.height//2), self.width, self.height//2),
             "Down": MyRect(self.x_pos, self.y_pos + self.height, self.width, self.height//2)
         }
+
+        self.move_directions = []
+        self.change_direction_timer = pygame.time.get_ticks()
+        self.game_screen_rect = MyRect(gc.GAME_SCREEN[0], gc.GAME_SCREEN[1], gc.GAME_SCREEN[2], gc.GAME_SCREEN[3])
+
     
     def ai_shooting(self):
         if self.paralyzed:
@@ -395,11 +406,48 @@ class EnemyTank(Tank):
         self.dir_rec["Up"].rect.update(self.x_pos, self.y_pos - (self.height//2), self.width, self.height//2)  
         self.dir_rec["Down"].rect.update(self.x_pos, self.y_pos + self.height, self.width, self.height//2)
 
+    def ai_move_direction(self):
+        directional_list_copy = self.move_directions.copy()
+        if pygame.time.get_ticks() - self.change_direction_timer <= 750:
+            return
+        
+        for key, value in self.dir_rec.items():
+            # Check to make sure the rectangle is withing the game screen
+            if pygame.Rect.contains(self.game_screen_rect.rect, value):
+                # Chech for any collision with impassable tiles
+                obst = pygame.sprite.spritecollideany(value, self.groups["Impassable_Tiles"])
+                if not obst:
+                    # Check if direction is already in directions list
+                    if key not in directional_list_copy:
+                        directional_list_copy.append(key)
+                    elif obst:
+                        # Check if there is collision and rectangle is contained by obstacle
+                        if value.rect.contains(obst.rect) and key in directional_list_copy:
+                            directional_list_copy.remove(key)
+                        else:
+                            if key in directional_list_copy and key != self.direction:
+                                directional_list_copy.remove(key)
+                    
+                    tank = pygame.sprite.spritecollideany(value, self.groups["All_Tanks"])
+                    if tank:
+                        if key in directional_list_copy:
+                            directional_list_copy.remove(key)
+                else:
+                    if key in directional_list_copy:
+                        directional_list_copy.remove(key)
+            
+            if self.move_directions != directional_list_copy or (self.direction not in directional_list_copy):
+                self.move_directions = directional_list_copy.copy()
+                if len(self.move_directions) > 0:
+                    self.direction = random.choice(self.move_directions)
+                self.change_direction_timer = pygame.time.get_ticks()
+
     def update(self):
         super().update()
         if self.spawning:
             return
         self.ai_move(self.direction)
+        self.ai_move_direction()
         self.ai_shooting()
     
     def draw(self, window):
@@ -407,4 +455,24 @@ class EnemyTank(Tank):
         for value in self.dir_rec.values():
             pygame.draw.rect(window, gc.GREEN, value.rect, 2)
     
+
+class SpecialTank(EnemyTank):
+    def __init__(self, game, assets, groups, position, direction, color, tank_level):
+        super().__init__(game, assets, groups, position, direction, color, tank_level)
+        self.color_swap_timer = pygame.time.get_ticks()
+        self.special = True
     
+    def update(self):
+        """Cause the flashing style to represent a special tank"""
+        super().update()
+        if self.special:
+            if pygame.time.get_ticks() - self.color_swap_timer >= 100:
+                self.color = "Special" if self.color == "Silver" else "Silver"
+                self.color_swap_timer = pygame.time.get_ticks()
+    
+    def destroy_tank(self):
+        if self.special:
+            self.special = False
+            # Generate the special power up
+            print("Power up Activated")
+        super().destroy_tank()

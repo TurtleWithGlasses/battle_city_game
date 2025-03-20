@@ -1,8 +1,8 @@
 import pygame
 import gameconfig as gc
-from characters import Tank, PlayerTank, EnemyTank
+from characters import Tank, PlayerTank, EnemyTank, SpecialTank
 from game_hud import GameHud
-from random import shuffle
+from random import random, shuffle, choice, randint
 from tile import BrickTile, SteelTile, ForestTile, IceTile, WaterTile
 from fade_animate import Fade
 from score_screen import ScoreScreen
@@ -168,7 +168,7 @@ class Game:
 
         # Number of enemy tanks to spawn in the stage
         # self.enemies = random.choice([16,17,18,20])
-        self.enemies = 10
+        self.enemies = 2
 
         # Track the number of enemies killed back down to zero
         self.enemies_killed = self.enemies
@@ -242,7 +242,12 @@ class Game:
         if pygame.time.get_ticks() - self.enemy_tank_spawn_timer >= gc.TANK_SPAWNING_TIME:
             position = self.enemy_tank_positions[self.spawn_pos_index % 3]
             tank_level = gc.Tank_Criteria[self.spawn_queue[self.spawn_queue_index % len(self.spawn_queue)]]["image"]
-            EnemyTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level)
+            special_tank = randint(1, len(self.spawn_queue))
+            SpecialTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level)
+            # if special_tank == self.spawn_queue_index:
+            #     SpecialTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level)
+            # else:
+            #     EnemyTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level)
             # Reset the enemy tank spawn timer
             self.enemy_tank_spawn_timer = pygame.time.get_ticks()
             self.spawn_pos_index += 1
