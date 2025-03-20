@@ -55,6 +55,7 @@ class Main:
         # Input controls for when level creator is running
         if self.level_editor_on:
             self.level_creator.input()
+            
         # Main game controls
         if not self.game_on and not self.level_editor_on and not self.start_screen_active:
             for event in pygame.event.get():

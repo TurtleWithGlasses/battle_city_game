@@ -95,13 +95,13 @@ class GameHud:
 
         # Update the number of player lives available
         self.player_1_active = self.game.player_1_active
-        if self.player_1_active and getattr(self.game, "player2", None):
+        if self.player_1_active:
             if self.player_1_lives != self.game.player1.lives:
                 self.player_1_lives = self.game.player1.lives
-                self.player_1_lives_image = self.display_player_lives(self.player_1_lives, self.player_1_active)
-        
+                self.player_1_lives_image = self.display_player_lives(self.player_1_lives, self.player_1_active)      
         self.player_2_active = self.game.player_2_active
-        if self.player_2_active and getattr(self.game, "player2", None):
+        
+        if self.player_2_active:
             if self.player_2_lives != self.game.player2.lives:
                 self.player_2_lives = self.game.player2.lives
                 self.player_2_lives_image = self.display_player_lives(self.player_2_lives, self.player_2_active)
