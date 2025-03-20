@@ -24,7 +24,8 @@ class Game:
             "Bullets": pygame.sprite.Group(),
             "Destructable_Tiles": pygame.sprite.Group(),
             "Impassable_Tiles": pygame.sprite.Group(),
-            "Forest_Tiles": pygame.sprite.Group()
+            "Forest_Tiles": pygame.sprite.Group(),
+            "Power_Ups": pygame.sprite.Group()
             }
 
         # Player attributes
@@ -168,7 +169,7 @@ class Game:
 
         # Number of enemy tanks to spawn in the stage
         # self.enemies = random.choice([16,17,18,20])
-        self.enemies = 2
+        self.enemies = 10
 
         # Track the number of enemies killed back down to zero
         self.enemies_killed = self.enemies

@@ -1,5 +1,6 @@
 import pygame
 from ammunition import Bullet
+from powerups import PowerUps
 import random
 import gameconfig as gc
 
@@ -475,4 +476,5 @@ class SpecialTank(EnemyTank):
             self.special = False
             # Generate the special power up
             print("Power up Activated")
+            PowerUps(self.game, self.assets, self.groups)
         super().destroy_tank()
