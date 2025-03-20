@@ -1,10 +1,18 @@
 import pygame
 from ammunition import Bullet
+import random
 import gameconfig as gc
 
 
+class MyRect(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = None
+        self.rect = pygame.Rect(x, y, width, height)
+
+
 class Tank(pygame.sprite.Sprite):
-    def __init__(self, game, assets, groups, position, direction, enemy = True, color="Silver", tank_level=0):
+    def __init__(self, game, assets, groups, position, direction, enemy=True, color="Silver", tank_level=0):
         super().__init__()
         # Game object and assets
         self.game = game
@@ -54,7 +62,7 @@ class Tank(pygame.sprite.Sprite):
 
         # Shoot cooldowns and bullet totals
         self.bullet_limit = 1
-        self.bullet_sum = 0
+        self.bullet_num = 0
         self.shoot_timer = 0
         self.shot_cooldown_time = 500
         self.shot_cooldown = pygame.time.get_ticks()
@@ -72,7 +80,7 @@ class Tank(pygame.sprite.Sprite):
         # Tank image mask dictionary
         self.mask_dict = self.get_various_masks()
         self.mask = self.mask_dict[self.direction]
-        self.mask_image = self.mask.to_surface()
+        # self.mask_image = self.mask.to_surface()
         self.mask_direction = self.direction
 
     def input(self):
@@ -255,12 +263,12 @@ class Tank(pygame.sprite.Sprite):
 
     # Tank shooting
     def shoot(self):
-        if self.bullet_sum >= self.bullet_limit:
+        if self.bullet_num >= self.bullet_limit:
             return
         if pygame.time.get_ticks() - self.shoot_timer < gc.BULLET_COOLDOWN:
             return
         bullet = Bullet(self.groups, self, self.rect.center, self.direction, self.assets)
-        self.bullet_sum += 1
+        self.bullet_num += 1
         self.shoot_timer = pygame.time.get_ticks()
     
     # Actions affecting tanks
@@ -284,11 +292,16 @@ class PlayerTank(Tank):
         super().__init__(game, assets, groups, position, direction, False, color, tank_level)
         self.player_group.add(self)
         self.lives = 3
+        # Player dead / game over
+        self.dead = False
+        self.game_over= False
         # Level score tracking
         self.score_list = []
     
     def input(self, keypressed):
         """Move the player tanks"""
+        if self.game_over or self.dead:
+            return
         if self.color == "Gold":
             if keypressed[pygame.K_w]:
                 self.move_tank("Up")
@@ -309,6 +322,30 @@ class PlayerTank(Tank):
             elif keypressed[pygame.K_RIGHT]:
                 self.move_tank("Right")
     
+    def update(self):
+        if self.game_over:
+            return
+        super().update()
+
+    def draw(self, window):
+        if self.game_over:
+            return
+        super().draw(window)
+
+    def shoot(self):
+        if self.game_over:
+            return
+        super().shoot()
+    
+    def destroy_tank(self):
+        if self.dead or self.game_over:
+            return
+        self.dead = True
+        self.lives -= 1
+        if self.lives <= 0:
+            self.game_over = True
+        self.respawn_tank()
+    
     def new_stage_spawn(self, spawn_pos):
         self.tank_group.add(self)
         self.spawning = True
@@ -318,4 +355,56 @@ class PlayerTank(Tank):
         self.image = self.tank_images[f"Tank_{self.tank_level}"][self.color][self.direction][self.frame_index]
         self.rect.topleft = (self.x_pos, self.y_pos)
         self.score_list.clear()
+    
+    def respawn_tank(self):
+        self.spawning = True
+        self.active = False
+        self.spawn_timer = pygame.time.get_ticks()
+        self.direction = "Up"
+        self.x_pos, self.y_pos = self.spawn_pos
+        self.image = self.tank_images[f"Tank_{self.tank_level}"][self.color][self.direction][self.frame_index]
+        self.rect = self.image.get_rect(topleft=(self.spawn_pos))
+        self.mask = self.mask_dict[self.direction]
+        self.dead = False
         
+class EnemyTank(Tank):
+    def __init__(self, game, assets, groups, position, direction, color, tank_level):
+        super().__init__(game, assets, groups, position, direction, True, color, tank_level)
+        self.time_between_shots = random.choice([300, 600, 900])
+        self.shot_timer = pygame.time.get_ticks()
+
+        self.dir_rec = {
+            "Left": MyRect(self.x_pos - (self.width//2), self.y_pos, self.width//2, self.height),
+            "Right": MyRect(self.x_pos + self.width, self.y_pos, self.width//2, self.height),
+            "Up": MyRect(self.x_pos, self.y_pos - (self.height//2), self.width, self.height//2),
+            "Down": MyRect(self.x_pos, self.y_pos + self.height, self.width, self.height//2)
+        }
+    
+    def ai_shooting(self):
+        if self.paralyzed:
+            return
+        if self.bullet_num < self.bullet_limit:
+            if pygame.time.get_ticks() - self.shot_timer >= self.time_between_shots:
+                self.shoot()
+                self.shot_timer = pygame.time.get_ticks()
+    
+    def ai_move(self, direction):
+        super().move_tank(direction)
+        self.dir_rec["Left"].rect.update(self.x_pos - (self.width//2), self.y_pos, self.width//2, self.height)
+        self.dir_rec["Right"].rect.update(self.x_pos + self.width, self.y_pos, self.width//2, self.height) 
+        self.dir_rec["Up"].rect.update(self.x_pos, self.y_pos - (self.height//2), self.width, self.height//2)  
+        self.dir_rec["Down"].rect.update(self.x_pos, self.y_pos + self.height, self.width, self.height//2)
+
+    def update(self):
+        super().update()
+        if self.spawning:
+            return
+        self.ai_move(self.direction)
+        self.ai_shooting()
+    
+    def draw(self, window):
+        super().draw(window)
+        for value in self.dir_rec.values():
+            pygame.draw.rect(window, gc.GREEN, value.rect, 2)
+    
+    

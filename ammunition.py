@@ -120,5 +120,5 @@ class Bullet(pygame.sprite.Sprite):
         # self.kill()
 
     def update_owner(self):
-        if self.owner.bullet_sum > 0:
-            self.owner.bullet_sum -= 1
+        if self.owner.bullet_num > 0:
+            self.owner.bullet_num -= 1
