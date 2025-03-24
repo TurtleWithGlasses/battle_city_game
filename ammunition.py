@@ -18,6 +18,8 @@ class Bullet(pygame.sprite.Sprite):
 
         # Bullet attributes
         self.owner = owner
+        self.power = self.owner.power
+        self.speed = self.owner.bullet_speed
 
         # Bullet image
         self.images = self.assets.bullet_images
@@ -51,15 +53,14 @@ class Bullet(pygame.sprite.Sprite):
     
     def move(self):
         """Move the bullet in the direction indicated in the init method"""
-        speed = gc.TANK_SPEED * 3
         if self.direction == "Up":
-            self.y_pos -= speed
+            self.y_pos -= self.speed
         elif self.direction == "Down":
-            self.y_pos += speed
+            self.y_pos += self.speed
         elif self.direction == "Left":
-            self.x_pos -= speed
+            self.x_pos -= self.speed
         elif self.direction == "Right":
-            self.x_pos += speed
+            self.x_pos += self.speed
         self.rect.center = (self.x_pos, self.y_pos)
     
     # Collisions

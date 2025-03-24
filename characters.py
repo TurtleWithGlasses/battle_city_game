@@ -235,6 +235,8 @@ class Tank(pygame.sprite.Sprite):
         """Perform collision checks with tanks and obstacles"""
         wall_collision = pygame.sprite.spritecollide(self, self.groups["Impassable_Tiles"], False)
         for obstacle in wall_collision:
+            if obstacle in self.groups["Water_Tiles"] and self.amphibious is True:
+                continue
             if self.direction == "Right" and self.rect.right >= obstacle.rect.left:
                 self.rect.right = obstacle.rect.left
                 self.x_pos = self.rect.x - self.tank_speed  # Move back slightly
@@ -302,6 +304,8 @@ class PlayerTank(Tank):
         self.game_over= False
         # Level score tracking
         self.score_list = []
+        # Amphibious
+        self.amphibious = False
 
         # Shield
         self.shield_start = True
@@ -377,6 +381,16 @@ class PlayerTank(Tank):
             return
         if self.dead or self.game_over:
             return
+        if self.tank_health > 1:
+            self.tank_health = 1
+            self.tank_level = 0
+            self.power = 1
+            self.amphibious = False
+            self.image = self.tank_images[f"Tank_{self.tank_level}"][self.color][self.color][self.direction][self.frame_index]
+            self.rect = self.image.get_rect(topleft=(self.x_pos, self.y_pos))
+            self.mask_dict = self.get_various_masks()
+            self.mask = self.mask_dict[self.direction]
+            return
         self.dead = True
         self.lives -= 1
         if self.lives <= 0:
@@ -400,9 +414,16 @@ class PlayerTank(Tank):
         self.spawn_timer = pygame.time.get_ticks()
         self.shield_start = True
         self.direction = "Up"
+        self.tank_level = 0
+        self.power = 1
+        self.amphibious = False
+        self.bullet_speed_modifier = 1
+        self.bullet_speed = gc.TANK_SPEED * (3 * self.bullet_speed_modifier)
+        self.bullet_limit = 1
         self.x_pos, self.y_pos = self.spawn_pos
         self.image = self.tank_images[f"Tank_{self.tank_level}"][self.color][self.direction][self.frame_index]
         self.rect = self.image.get_rect(topleft=(self.spawn_pos))
+        self.mask_dict = self.get_various_masks()
         self.mask = self.mask_dict[self.direction]
         self.dead = False
         

@@ -14,7 +14,7 @@ class PowerUps(pygame.sprite.Sprite):
         self.groups["Power_Ups"].add(self)
 
         # self.power_up = self.randomly_select_power_up()
-        self.power_up = "extra_life"
+        self.power_up = "special"
         self.power_up_timer = pygame.time.get_ticks()
 
         self.x_pos = random.randint(gc.SCREEN_BORDER_LEFT, gc.SCREEN_BORDER_RIGHT - gc.image_size)
@@ -55,6 +55,33 @@ class PowerUps(pygame.sprite.Sprite):
         """Give player an extra life"""
         player.lives += 1
     
+    def power(self, player):
+        """Increase the bullet speend and when speed reaches 1.5, increase the bullet limit by 1"""
+        player.bullet_speed_modifier += 0.1
+        if player.bullet_speed_modifier > 1.5:
+            player.bullet_speed_modifier = 1
+            player.bullet_limit += 1
+        player.bullet_speed = gc.TANK_SPEED * (3 * player.bullet_speed_modifier)
+    
+    def special(self, player):
+        """Upgrade tank level
+            Level 2 - Shot power increased to 2, can destroy a block of bricks in 1 shot
+            Level 3 - Shot power increased to 3, can destroy a block of steel in 1 shot
+            Level 4 - Tank health increased by 1
+            Level 5 and up - Tank becomes amphibious"""
+        if player.power >= 4:
+            player.amphibious = True
+            return
+        player.power += 1
+        player.tank_level += 1
+        if player.tank_level >= 3:
+            player.tank_level = 3
+            player.tank_health += 1
+        player.image = player.tank_images[f"Tank_{player.tank_level}"][player.color][player.direction][player.frame_index]
+        player.mask_dict = player.get_various_masks()
+        player.mask = player.mask_dict[player.direction]
+
+    
     def update(self):
         if pygame.time.get_ticks() - self.power_up_timer >= 5000:
             self.kill()
@@ -68,6 +95,10 @@ class PowerUps(pygame.sprite.Sprite):
                 self.explosion(player_tank)
             elif self.power_up == "extra_life":
                 self.extra_life(player_tank)
+            elif self.power_up == "power":
+                self.power(player_tank)
+            elif self.power_up == "special":
+                self.special(player_tank)
             print(self.power_up)
             self.power_up_collected()
     
