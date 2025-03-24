@@ -13,8 +13,8 @@ class PowerUps(pygame.sprite.Sprite):
         self.groups = groups
         self.groups["Power_Ups"].add(self)
 
-        # self.power_up = self.randomly_select_power_up()
-        self.power_up = "special"
+        self.power_up = self.randomly_select_power_up()
+        # self.power_up = "fortify"
         self.power_up_timer = pygame.time.get_ticks()
 
         self.x_pos = random.randint(gc.SCREEN_BORDER_LEFT, gc.SCREEN_BORDER_RIGHT - gc.image_size)
@@ -81,6 +81,11 @@ class PowerUps(pygame.sprite.Sprite):
         player.mask_dict = player.get_various_masks()
         player.mask = player.mask_dict[player.direction]
 
+    def fortify(self):
+        """Fortify the base"""
+        self.game.fortify = True
+        self.game.fortify_timer = pygame.time.get_ticks()
+        self.game.power_up_fortify()
     
     def update(self):
         if pygame.time.get_ticks() - self.power_up_timer >= 5000:
@@ -99,6 +104,8 @@ class PowerUps(pygame.sprite.Sprite):
                 self.power(player_tank)
             elif self.power_up == "special":
                 self.special(player_tank)
+            elif self.power_up == "fortify":
+                self.fortify()
             print(self.power_up)
             self.power_up_collected()
     

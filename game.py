@@ -2,7 +2,7 @@ import pygame
 import gameconfig as gc
 from characters import Tank, PlayerTank, EnemyTank, SpecialTank
 from game_hud import GameHud
-from random import random, shuffle, choice, randint
+from random import shuffle, choice, randint
 from tile import BrickTile, SteelTile, ForestTile, IceTile, WaterTile
 from fade_animate import Fade
 from score_screen import ScoreScreen
@@ -39,7 +39,7 @@ class Game:
         self.hud = GameHud(self, self.assets)
 
         # Level information
-        self.level_num = 1
+        self.level_num = 5
         self.level_complete = False
         self.level_transition_timer = None
         self.data = self.main.levels
@@ -62,6 +62,10 @@ class Game:
 
         # Load the stage
         self.create_new_stage()
+
+        # Fortify Base Power
+        self.fortify = False
+        self.fortify_timer = pygame.time.get_ticks()
 
         # Game over
         self.end_game = False
@@ -108,6 +112,12 @@ class Game:
                 for tank in self.groups["All_Tanks"]:
                     tank.spawn_timer = pygame.time.get_ticks()
             return
+        
+        if self.fortify:
+            if pygame.time.get_ticks() - self.fortify_timer >= 10000:
+                self.power_up_fortify(start=False, end=True)
+                self.fortify = False
+
         # if self.player_1_active:
         #     self.player1.update()
         # if self.player_2_active:
@@ -168,8 +178,8 @@ class Game:
         self.current_level_data = self.data.level_data[self.level_num-1]
 
         # Number of enemy tanks to spawn in the stage
-        # self.enemies = random.choice([16,17,18,20])
-        self.enemies = 10
+        self.enemies = choice([16,17,18,20])
+        # self.enemies = 20
 
         # Track the number of enemies killed back down to zero
         self.enemies_killed = self.enemies
@@ -244,11 +254,11 @@ class Game:
             position = self.enemy_tank_positions[self.spawn_pos_index % 3]
             tank_level = gc.Tank_Criteria[self.spawn_queue[self.spawn_queue_index % len(self.spawn_queue)]]["image"]
             special_tank = randint(1, len(self.spawn_queue))
-            SpecialTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level)
-            # if special_tank == self.spawn_queue_index:
-            #     SpecialTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level)
-            # else:
-            #     EnemyTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level)
+            # SpecialTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level)
+            if special_tank == self.spawn_queue_index:
+                SpecialTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level)
+            else:
+                EnemyTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level)
             # Reset the enemy tank spawn timer
             self.enemy_tank_spawn_timer = pygame.time.get_ticks()
             self.spawn_pos_index += 1
@@ -274,3 +284,33 @@ class Game:
         self.player_1_score = p1_score
         self.player_2_score = p2_score
         self.create_new_stage()
+    
+    def power_up_fortify(self, start=True, end=False):
+        off_x, off_y = gc.SCREEN_BORDER_LEFT, gc.SCREEN_BORDER_TOP
+        positions = [
+            (off_x + gc.image_size // 2 * 11, off_y + gc.image_size // 2 * 25),
+            (off_x + gc.image_size // 2 * 11, off_y + gc.image_size // 2 * 24),
+            (off_x + gc.image_size // 2 * 11, off_y + gc.image_size // 2 * 23),
+            (off_x + gc.image_size // 2 * 12, off_y + gc.image_size // 2 * 23),
+            (off_x + gc.image_size // 2 * 13, off_y + gc.image_size // 2 * 23),
+            (off_x + gc.image_size // 2 * 14, off_y + gc.image_size // 2 * 23),
+            (off_x + gc.image_size // 2 * 14, off_y + gc.image_size // 2 * 24),
+            (off_x + gc.image_size // 2 * 14, off_y + gc.image_size // 2 * 25),
+        ]
+
+        if start:
+            for pos in positions:
+                pos_rect = pygame.rect.Rect(pos[0], pos[1], gc.image_size // 2, gc.image_size // 2)
+                for rectangle in self.groups["Impassable_Tiles"]:
+                    if rectangle.rect.colliderect(pos_rect):
+                        rectangle.kill()
+                map_tile = SteelTile(pos, self.groups["Destructable_Tiles"], self.assets.steel_tiles)
+                self.groups["Impassable_Tiles"].add(map_tile)
+        elif end:
+            for pos in positions:
+                pos_rect = pygame.rect.Rect(pos[0], pos[1], gc.image_size // 2, gc.image_size // 2)
+                for rectangle in self.groups["Impassable_Tiles"]:
+                    if rectangle.rect.colliderect(pos_rect):
+                        rectangle.kill()
+                map_tile = BrickTile(pos, self.groups["Destructable_Tiles"], self.assets.brick_tiles)
+                self.groups["Impassable_Tiles"].add(map_tile) 

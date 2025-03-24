@@ -72,6 +72,9 @@ class Tank(pygame.sprite.Sprite):
         self.paralysis = gc.TANK_PARALYSIS
         self.paralysis_timer = pygame.time.get_ticks()
 
+        # Amphibious
+        self.amphibious = False
+
         # Spawn images
         self.spawn_image = self.spawn_images[f"star_{self.frame_index}"]
         self.spawn_timer = pygame.time.get_ticks() # Overall spawn timer
@@ -304,9 +307,7 @@ class PlayerTank(Tank):
         self.game_over= False
         # Level score tracking
         self.score_list = []
-        # Amphibious
-        self.amphibious = False
-
+        
         # Shield
         self.shield_start = True
         self.shield = False
