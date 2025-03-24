@@ -1,4 +1,5 @@
 import pygame
+from explosions import Explosion
 import gameconfig as gc
 
 
@@ -70,6 +71,7 @@ class Bullet(pygame.sprite.Sprite):
             self.rect.bottom >= gc.SCREEN_BORDER_BOTTOM or \
             self.rect.left <= gc.SCREEN_BORDER_LEFT or \
             self.rect.right >= gc.SCREEN_BORDER_RIGHT:
+            Explosion(self.assets, self.group, self.rect.center, 1)
             self.update_owner()
             self.kill()
     
@@ -84,6 +86,7 @@ class Bullet(pygame.sprite.Sprite):
                 if pygame.sprite.collide_mask(self, tank):
                     self.update_owner()
                     tank.paralyze_tank(gc.TANK_PARALYSIS)
+                    Explosion(self.assets, self.group, self.rect.center, 1)
                     self.kill()
                     break
             # Check for player bullet collision with AI tank or AI bullet with player tank
@@ -94,6 +97,7 @@ class Bullet(pygame.sprite.Sprite):
                     if not self.owner.enemy:
                         self.owner.score_list.append(gc.Tank_Criteria[tank.level]["score"])
                     tank.destroy_tank()
+                    Explosion(self.assets, self.group, self.rect.center, 1)
                     self.kill()
                     break
 
@@ -117,6 +121,7 @@ class Bullet(pygame.sprite.Sprite):
         obstacle_collide = pygame.sprite.spritecollide(self, self.group["Destructable_Tiles"], False)
         for obstacle in obstacle_collide:
             obstacle.hit_by_bullet(self)
+            Explosion(self.assets, self.group, self.rect.center, 1)
         # self.kill()
 
     def update_owner(self):

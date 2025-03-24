@@ -24,6 +24,7 @@ class Game:
             "Bullets": pygame.sprite.Group(),
             "Destructable_Tiles": pygame.sprite.Group(),
             "Impassable_Tiles": pygame.sprite.Group(),
+            "Explosion": pygame.sprite.Group(),
             "Forest_Tiles": pygame.sprite.Group(),
             "Power_Ups": pygame.sprite.Group()
             }
@@ -39,7 +40,7 @@ class Game:
         self.hud = GameHud(self, self.assets)
 
         # Level information
-        self.level_num = 5
+        self.level_num = 1
         self.level_complete = False
         self.level_transition_timer = None
         self.data = self.main.levels
