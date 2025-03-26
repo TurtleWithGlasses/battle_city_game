@@ -45,6 +45,8 @@ class Bullet(pygame.sprite.Sprite):
         self.collision_with_bullet()
         # Check for collision with destructable tiles
         self.collision_with_obstacle()
+        # Check for collision with the base flag
+        self.base_collision()
 
     def draw(self, window):
         # Draw bullet on the screen
@@ -123,6 +125,14 @@ class Bullet(pygame.sprite.Sprite):
             obstacle.hit_by_bullet(self)
             Explosion(self.assets, self.group, self.rect.center, 1)
         # self.kill()
+    
+    def base_collision(self):
+        """If base is hit by a bullet"""
+        if self.rect.colliderect(self.group["Eagle"].sprite.rect):
+            Explosion(self.assets, self.group, self.rect.center, 1)
+            self.update_owner()
+            self.group["Eagle"].sprite.destroy_base()
+            self.kill()
 
     def update_owner(self):
         if self.owner.bullet_num > 0:

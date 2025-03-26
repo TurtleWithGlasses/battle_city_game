@@ -173,6 +173,8 @@ class Tank(pygame.sprite.Sprite):
         self.tank_on_tank_collision()
         # Check for tank collisions with obstacles
         self.tank_collisions_with_obstacles()
+        # Check for tank collision with base
+        self.base_collision()
     
     # Tank animations
     def tank_movement_animation(self):
@@ -266,6 +268,13 @@ class Tank(pygame.sprite.Sprite):
                 self.frame_index = 0
                 self.spawning = False
                 self.active = True
+
+    def base_collision(self):
+        """If base is driven over by a tank"""
+        if not self.groups["Eagle"].sprite.active:
+            return
+        if self.rect.colliderect(self.groups["Eagle"].sprite.rect):
+            self.groups["Eagle"].sprite.destroy_base()
 
     # Tank shooting
     def shoot(self):
