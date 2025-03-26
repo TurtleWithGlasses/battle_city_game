@@ -120,7 +120,7 @@ class Tank(pygame.sprite.Sprite):
         if self.active:
             window.blit(self.image, self.rect)
             # window.blit(self.mask_image, self.rect)
-            pygame.draw.rect(window, gc.RED, self.rect, 1)
+            # pygame.draw.rect(window, gc.RED, self.rect, 1)
 
     # Tank movement
     def grid_alignment_movement(self, pos):
@@ -531,8 +531,8 @@ class EnemyTank(Tank):
     
     def draw(self, window):
         super().draw(window)
-        for value in self.dir_rec.values():
-            pygame.draw.rect(window, gc.GREEN, value.rect, 2)
+        # for value in self.dir_rec.values():
+        #     pygame.draw.rect(window, gc.GREEN, value.rect, 2)
     
 
 class SpecialTank(EnemyTank):
@@ -553,6 +553,5 @@ class SpecialTank(EnemyTank):
         if self.special:
             self.special = False
             # Generate the special power up
-            print("Power up Activated")
             PowerUps(self.game, self.assets, self.groups)
         super().destroy_tank()

@@ -107,11 +107,6 @@ class Game:
                     if self.player_2_active:
                         self.player2.shoot()
                     
-                if event.key == pygame.K_RETURN and self.enemies > 0:
-                    new_tank = Tank(self, self.assets, self.groups, (400, 400), "Down")
-                    self.groups["All_Tanks"].add(new_tank)
-                    self.enemies -= 1
-
     def update(self):
         #Update the hud
         self.hud.update()
@@ -240,7 +235,6 @@ class Game:
         self.generate_spawn_queue()
         self.spawn_pos_index = 0
         self.spawn_queue_index = 0
-        print(self.spawn_queue)
 
         if self.player_1_active:
             self.player1.new_stage_spawn(gc.PL1_position)

@@ -80,6 +80,12 @@ class LevelEditor:
                     self.level_data.save_level_data(self.all_levels)
                     self.main.levels.level_data = self.all_levels
                     self.active = False
+                
+                # Immediately save the map
+                if event.key == pygame.K_LCTRL:
+                    self.all_levels.insert(0, self.matrix)
+                    self.main.levels.level_data = self.all_levels
+                    self.active = False
 
     def update(self):
         icon_grid_pos_col = (self.icon_rect.left - gc.SCREEN_BORDER_LEFT) // (gc.image_size//2)
@@ -92,7 +98,7 @@ class LevelEditor:
 
     def draw(self, window):
         window.blit(self.overlay_screen, (0, 0))
-        self.draw_grid_to_screen(window)
+        # self.draw_grid_to_screen(window)
 
         for i, row in enumerate(self.matrix):
             for j, tile in enumerate(row):
@@ -103,7 +109,7 @@ class LevelEditor:
                                                        gc.SCREEN_BORDER_TOP + (i * gc.image_size//2)))
 
         window.blit(self.icon_image, self.icon_rect)
-        pygame.draw.rect(window, gc.GREEN, self.icon_rect, 1)
+        # pygame.draw.rect(window, gc.GREEN, self.icon_rect, 1)
 
     def draw_screen(self):
         """Create the game screen"""

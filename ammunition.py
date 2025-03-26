@@ -52,7 +52,7 @@ class Bullet(pygame.sprite.Sprite):
         # Draw bullet on the screen
         window.blit(self.image, self.rect)
         # window.blit(self.mask_image, self.rect)
-        pygame.draw.rect(window, gc.GREEN, self.rect, 1)
+        # pygame.draw.rect(window, gc.GREEN, self.rect, 1)
     
     def move(self):
         """Move the bullet in the direction indicated in the init method"""
