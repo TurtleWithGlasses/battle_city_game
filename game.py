@@ -131,15 +131,19 @@ class Game:
                 if self.player1.game_over and self.player2.game_over and not self.game_over_screen.active:
                     self.groups["All_Tanks"].empty()
                     self.game_over = True
+                    self.assets.channel_gameover_sound.play(self.assets.gameover_sound)
                     self.game_over_screen.activate()
                     return
-            if self.player1.game_over:
-                self.groups["All_Tanks"].empty()
-                self.game_over = True
-                self.game_over_screen.activate()
-                return
+            elif self.player_1_active and not self.player_2_active and not self.game_over_screen.active:
+                if self.player1.game_over:
+                    self.groups["All_Tanks"].empty()
+                    self.game_over = True
+                    self.assets.channel_gameover_sound.play(self.assets.gameover_sound)
+                    self.game_over_screen.activate()
+                    return
         elif self.game_over and not self.end_game and not self.game_over_screen.active:
             self.stage_transition(True)
+            self.assets.channel_gameover_sound.play(self.assets.gameover_sound)
             return
         
         if self.fortify:
@@ -158,6 +162,11 @@ class Game:
                 item.update()
 
         self.spawn_enemy_tanks()
+
+        for tank in self.groups["All_Tanks"]:
+            if tank.enemy is True and tank.spawning is False:
+                self.assets.channel_enemy_movement_sound.play(self.assets.enemy_movement_sound)
+                break
 
         # Check to see if stage enemies have all been killed
         if self.enemies_killed <= 0 and self.level_complete is False:
@@ -220,6 +229,8 @@ class Game:
         self.load_level_data(self.current_level_data)
         self.eagle = Eagle(self, self.assets, self.groups)
         self.level_complete = False
+
+        self.assets.game_start_sound.play()
 
         self.fade.level = self.level_num
         self.fade.stage_image = self.fade.create_stage_image()
@@ -298,7 +309,7 @@ class Game:
             self.spawn_queue_index += 1
             self.enemies -= 1
 
-    def stage_transition(self, game_over):
+    def stage_transition(self, game_over=False):
         if not self.score_screen.active:
             self.score_screen.timer = pygame.time.get_ticks()
             if self.player_1_active:

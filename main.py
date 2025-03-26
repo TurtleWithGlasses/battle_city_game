@@ -13,6 +13,7 @@ class Main:
         # Initialize pygame module
         pygame.init()
         print("[INFO] Initializing game...")
+        pygame.mixer.init()
 
         self.screen = pygame.display.set_mode((gc.SCREENWIDTH, gc.SCREENHEIGHT))
         pygame.display.set_caption("Battle City Clone")

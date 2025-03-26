@@ -33,6 +33,7 @@ class PowerUps(pygame.sprite.Sprite):
     
     def power_up_collected(self):
         ScoreBanner(self.assets, self.groups, self.rect.center, "500")
+        self.assets.channel_bonus_sound.play(self.assets.bonus_sound)
         self.kill()
     
     def shield(self, player):

@@ -282,6 +282,7 @@ class Tank(pygame.sprite.Sprite):
             return
 
         bullet = Bullet(self.groups, self, self.rect.center, self.direction, self.assets)
+        self.assets.channel_fire_sound.play(self.assets.fire_sound)
         self.bullet_num += 1
         # self.shoot_timer = pygame.time.get_ticks()
     
@@ -299,6 +300,7 @@ class Tank(pygame.sprite.Sprite):
         if self.tank_health <= 0:
             self.kill()
             Explosion(self.assets, self.groups, self.rect.center, 5, self.score)
+            self.assets.channel_explosion_sound.play(self.assets.explosion_sound)
             self.game.enemies_killed -= 1
             return
         if self.tank_health == 3:
@@ -329,6 +331,9 @@ class PlayerTank(Tank):
         self.shield_anim_timer = pygame.time.get_ticks()
         self.shield_image = self.shield_images[f"shield_{self.shield_img_index+1}"]
         self.shield_image_rect = self.shield_image.get_rect(topleft=(self.rect.topleft))
+
+        self.movement_sound = self.assets.movement_sound
+        self.player_movement_channel = pygame.mixer.Channel(0)
     
     def input(self, keypressed):
         """Move the player tanks"""
@@ -383,6 +388,12 @@ class PlayerTank(Tank):
         if self.shield and not self.spawning:
             window.blit(self.shield_image, self.shield_image_rect)
 
+    def move_tank(self, direction):
+        if self.spawning:
+            return
+        self.player_movement_channel.play(self.movement_sound)
+        super().move_tank(direction)
+
     def shoot(self):
         if self.game_over:
             return
@@ -404,6 +415,7 @@ class PlayerTank(Tank):
             self.mask = self.mask_dict[self.direction]
             return
         Explosion(self.assets, self.groups, self.rect.center, 5, 0)
+        self.assets.channel_explosion_sound.play(self.assets.explosion_sound)
         self.dead = True
         self.lives -= 1
         if self.lives <= 0:

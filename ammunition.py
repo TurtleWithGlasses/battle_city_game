@@ -74,6 +74,7 @@ class Bullet(pygame.sprite.Sprite):
             self.rect.left <= gc.SCREEN_BORDER_LEFT or \
             self.rect.right >= gc.SCREEN_BORDER_RIGHT:
             Explosion(self.assets, self.group, self.rect.center, 1)
+            self.assets.channel_steel_sound.play(self.assets.steel_sound)
             self.update_owner()
             self.kill()
     
@@ -122,6 +123,10 @@ class Bullet(pygame.sprite.Sprite):
         """Check for bullet collision with any of the tiles"""
         obstacle_collide = pygame.sprite.spritecollide(self, self.group["Destructable_Tiles"], False)
         for obstacle in obstacle_collide:
+            if obstacle.name == "Brick":
+                self.assets.channel_brick_sound.play(self.assets.brick_sound)
+            elif obstacle.name == "Steel":
+                self.assets.channel_steel_sound.play(self.assets.steel_sound)
             obstacle.hit_by_bullet(self)
             Explosion(self.assets, self.group, self.rect.center, 1)
         # self.kill()

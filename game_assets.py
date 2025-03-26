@@ -48,6 +48,29 @@ class GameAssets:
         for image in score_images:
             self.score_sheet_images[image] = self.load_individual_img(image)
 
+        sound_file_path = "C:\\Users\\mhmts\\PycharmProjects\\battle_city\\sounds\\"
+        # Game Sounds
+        self.game_start_sound = pygame.mixer.Sound(os.path.join(sound_file_path, "gamestart.ogg"))
+        self.movement_sound = pygame.mixer.Sound(os.path.join(sound_file_path, "background+player.ogg"))
+        self.movement_sound.set_volume(0.7)
+        self.channel_player_movement_sound = pygame.mixer.Channel(0)
+        self.enemy_movement_sound = pygame.mixer.Sound(os.path.join(sound_file_path, "background.ogg"))
+        self.enemy_movement_sound.set_volume(0.4)
+        self.channel_enemy_movement_sound = pygame.mixer.Channel(1)
+        self.fire_sound = pygame.mixer.Sound(os.path.join(sound_file_path, "fire.ogg"))
+        self.fire_sound.set_volume(1)
+        self.channel_fire_sound = pygame.mixer.Channel(2)
+        self.brick_sound = pygame.mixer.Sound(os.path.join(sound_file_path, "brick.ogg"))
+        self.channel_brick_sound = pygame.mixer.Channel(3)
+        self.steel_sound = pygame.mixer.Sound(os.path.join(sound_file_path, "steel.ogg"))
+        self.channel_steel_sound = pygame.mixer.Channel(4)
+        self.explosion_sound = pygame.mixer.Sound(os.path.join(sound_file_path, "explosion.ogg"))
+        self.channel_explosion_sound = pygame.mixer.Channel(5)
+        self.bonus_sound = pygame.mixer.Sound(os.path.join(sound_file_path, "bonus.ogg"))
+        self.channel_bonus_sound = pygame.mixer.Channel(6)
+        self.gameover_sound = pygame.mixer.Sound(os.path.join(sound_file_path, "gameover.ogg"))
+        self.channel_gameover_sound = pygame.mixer.Channel(7)
+        self.score_sound = pygame.mixer.Sound(os.path.join(sound_file_path, "score.ogg"))
 
     def _load_all_tank_images(self):
         """Get all the tank images from the spritesheet"""        
