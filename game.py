@@ -7,6 +7,7 @@ from tile import BrickTile, SteelTile, ForestTile, IceTile, WaterTile
 from fade_animate import Fade
 from score_screen import ScoreScreen
 from eagle import Eagle
+from game_over import GameOver
 
 
 class Game:
@@ -53,12 +54,14 @@ class Game:
         self.fade = Fade(self, self.assets, 10)
         # Stage Score Screen
         self.score_screen = ScoreScreen(self, self.assets)
+        # Game Over
+        self.game_over_screen = GameOver(self, self.assets)
 
         # Player objects
         if self.player_1_active:
             self.player1 = PlayerTank(self, self.assets, self.groups, gc.PL1_position, "Up", "Gold", 0)
         if self.player_2_active:
-            self.player2 = PlayerTank(self, self.assets, self.groups, gc.PL2_position, "Up", "Green", 1)
+            self.player2 = PlayerTank(self, self.assets, self.groups, gc.PL2_position, "Up", "Green", 0)
         
         # Number of enemy tanks
         self.enemies = gc.STD_ENEMIES
@@ -75,6 +78,7 @@ class Game:
         # Game over
         self.end_game = False
         self.game_on = False
+        self.game_over = False
 
     
     def input(self):
@@ -111,11 +115,31 @@ class Game:
     def update(self):
         #Update the hud
         self.hud.update()
+
+        if self.game_over_screen.active:
+            self.game_over_screen.update()
+
         if self.fade.fade_active:
             self.fade.update()
             if not self.fade.fade_active:
                 for tank in self.groups["All_Tanks"]:
                     tank.spawn_timer = pygame.time.get_ticks()
+            return
+        
+        if not self.game_over:
+            if self.player_1_active and self.player_2_active:
+                if self.player1.game_over and self.player2.game_over and not self.game_over_screen.active:
+                    self.groups["All_Tanks"].empty()
+                    self.game_over = True
+                    self.game_over_screen.activate()
+                    return
+            if self.player1.game_over:
+                self.groups["All_Tanks"].empty()
+                self.game_over = True
+                self.game_over_screen.activate()
+                return
+        elif self.game_over and not self.end_game and not self.game_over_screen.active:
+            self.stage_transition(True)
             return
         
         if self.fortify:
@@ -171,6 +195,9 @@ class Game:
         
         if self.fade.fade_active:
             self.fade.draw(window)
+        
+        if self.game_over_screen.active:
+            self.game_over_screen.draw(window)
     
     def create_new_stage(self):
         # Reset the various sprite groups back to Zero
@@ -271,7 +298,7 @@ class Game:
             self.spawn_queue_index += 1
             self.enemies -= 1
 
-    def stage_transition(self):
+    def stage_transition(self, game_over):
         if not self.score_screen.active:
             self.score_screen.timer = pygame.time.get_ticks()
             if self.player_1_active:
@@ -282,7 +309,7 @@ class Game:
                 self.score_screen.p2_kill_list = sorted(self.player2.score_list)
             self.score_screen.update_basic_info(self.top_score, self.level_num)
         self.score_screen.active = True
-        self.score_screen.update()
+        self.score_screen.update(game_over)
     
     def change_level(self, p1_score, p2_score):
         self.level_num += 1

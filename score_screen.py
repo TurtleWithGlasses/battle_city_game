@@ -36,7 +36,7 @@ class ScoreScreen:
         self.p1_tank_num_images, self.p1_tank_score_images = self.generate_tank_kill_images(14, 7, self.pl_1_score_values)
         self.p2_tank_num_images, self.p2_tank_score_images = self.generate_tank_kill_images(20, 25, self.pl_2_score_values)
         
-    def update(self):
+    def update(self, game_over):
         if not pygame.time.get_ticks() - self.timer >= 3000:
             return
         
@@ -55,6 +55,9 @@ class ScoreScreen:
                 return
         
         if pygame.time.get_ticks() - self.score_timer >= 3000:
+            if game_over:
+                self.game.end_game = True
+                return
             self.active = False
             self.game.change_level(self.p1_score, self.p2_score)
             self.clear_for_new_stage()
