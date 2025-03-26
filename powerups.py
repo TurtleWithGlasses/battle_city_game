@@ -98,7 +98,7 @@ class PowerUps(pygame.sprite.Sprite):
             if player_tank.color == "Gold":
                 self.game.player_1_score += 500
             elif player_tank.color == "Green":
-                self.game.player_2_Score += 500
+                self.game.player_2_score += 500
 
             if self.power_up == "shield":
                 self.shield(player_tank)

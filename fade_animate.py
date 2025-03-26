@@ -96,6 +96,6 @@ class Fade:
         if self.level < 10:
             surface.blit(self.images["num_0"], (self.stage_pic_width + self.num_pic_width, 0))
         else:
-            surface.blit(self.images[f"num{str(self.level)[0]}"], (self.stage_pic_width + self.num_pic_width, 0))
+            surface.blit(self.images[f"num_{str(self.level)[0]}"], (self.stage_pic_width + self.num_pic_width, 0))
         surface.blit(self.images[f"num_{str(self.level)[-1]}"], (self.stage_pic_width + (self.num_pic_width * 2), 0))
         return surface

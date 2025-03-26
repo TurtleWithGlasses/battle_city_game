@@ -22,7 +22,7 @@ class Eagle(pygame.sprite.Sprite):
             if self.game.player_1_active:
                 self.game.player1.game_over = True
             if self.game.player_2_active:
-                self.game.plater2.game_over = True
+                self.game.player2.game_over = True
     
     def draw(self, window):
         window.blit(self.image, self.rect)
