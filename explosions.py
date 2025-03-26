@@ -1,13 +1,15 @@
 import pygame
+from scores import ScoreBanner
 
 class Explosion(pygame.sprite.Sprite):
-    def __init__(self, assets, group, position, explode_type=1):
+    def __init__(self, assets, group, position, explode_type=1, score=100):
         super().__init__()
         self.assets = assets
         self.group = group
         self.explosion_group = self.group["Explosion"]
         self.explosion_group.add(self)
 
+        self.score = score
         self.position = position
         self.explode_type = explode_type
         self.frame_index = 1
@@ -22,6 +24,9 @@ class Explosion(pygame.sprite.Sprite):
             self.frame_index += 1
             if self.frame_index >= len(self.images):
                 self.kill()
+                if self.score == 0:
+                    return
+                ScoreBanner(self.assets, self.group, self.rect.center, self.score)
             if self.explode_type == 1 and self.frame_index > 3:
                 self.kill()
             self.anim_timer = pygame.time.get_ticks()

@@ -26,7 +26,8 @@ class Game:
             "Impassable_Tiles": pygame.sprite.Group(),
             "Explosion": pygame.sprite.Group(),
             "Forest_Tiles": pygame.sprite.Group(),
-            "Power_Ups": pygame.sprite.Group()
+            "Power_Ups": pygame.sprite.Group(),
+            "Scores": pygame.sprite.Group()
             }
 
         # Player attributes

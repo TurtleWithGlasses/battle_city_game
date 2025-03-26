@@ -1,6 +1,7 @@
 import pygame
 import random
 import gameconfig as gc
+from scores import ScoreBanner
 
 
 class PowerUps(pygame.sprite.Sprite):
@@ -31,6 +32,7 @@ class PowerUps(pygame.sprite.Sprite):
         return selected_powerup
     
     def power_up_collected(self):
+        ScoreBanner(self.assets, self.groups, self.rect.center, "500")
         self.kill()
     
     def shield(self, player):
@@ -92,6 +94,11 @@ class PowerUps(pygame.sprite.Sprite):
             self.kill()
         player_tank = pygame.sprite.spritecollideany(self, self.groups["Player_Tanks"])
         if player_tank:
+            if player_tank.color == "Gold":
+                self.game.player_1_score += 500
+            elif player_tank.color == "Green":
+                self.game.player_2_Score += 500
+
             if self.power_up == "shield":
                 self.shield(player_tank)
             elif self.power_up == "freeze":
