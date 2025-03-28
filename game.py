@@ -8,6 +8,7 @@ from fade_animate import Fade
 from score_screen import ScoreScreen
 from eagle import Eagle
 from game_over import GameOver
+import random
 
 
 class Game:
@@ -286,6 +287,7 @@ class Game:
 
     def spawn_enemy_tanks(self):
         """Spawn enemy tanks, each tank spawns as per the queue"""
+        behavior = random.choice(["chaser", "evader","patroller"])
         if self.enemies == 0:
             return
         if pygame.time.get_ticks() - self.enemy_tank_spawn_timer >= gc.TANK_SPAWNING_TIME:
@@ -296,14 +298,16 @@ class Game:
             special_tank = randint(1, len(self.spawn_queue))
             # SpecialTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level)
             if special_tank == self.spawn_queue_index:
-                SpecialTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level)
+                SpecialTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level, behavior)
             else:
-                EnemyTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level)
+                EnemyTank(self, self.assets, self.groups, position, "Down", "Silver", tank_level, behavior)
             # Reset the enemy tank spawn timer
             self.enemy_tank_spawn_timer = pygame.time.get_ticks()
             self.spawn_pos_index += 1
             self.spawn_queue_index += 1
             self.enemies -= 1
+
+            print(f"{behavior} tank has respwaned")
 
     def stage_transition(self, game_over=False):
         if not self.score_screen.active:

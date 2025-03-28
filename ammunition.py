@@ -99,6 +99,13 @@ class Bullet(pygame.sprite.Sprite):
                     self.update_owner()
                     if not self.owner.enemy:
                         self.owner.score_list.append(gc.Tank_Criteria[tank.level]["score"])
+                        # Update player kills
+                        self.owner.kills += 1
+
+                        if self.owner.kills >= 4:
+                            self.owner.lives += 1
+                            print(f"{self.owner.color} Player earned an extra life!")
+                            self.owner.kills = 0
                     tank.destroy_tank()
                     Explosion(self.assets, self.group, self.rect.center, 1)
                     self.kill()

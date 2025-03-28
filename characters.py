@@ -9,7 +9,7 @@ import gameconfig as gc
 class MyRect(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         super().__init__()
-        self.image = None
+        # self.image = None
         self.rect = pygame.Rect(x, y, width, height)
 
 
@@ -315,6 +315,7 @@ class PlayerTank(Tank):
         super().__init__(game, assets, groups, position, direction, False, color, tank_level)
         self.player_group.add(self)
         self.lives = 3
+        self.kills = 0
         # Player dead / game over
         self.dead = False
         self.game_over= False
@@ -453,10 +454,12 @@ class PlayerTank(Tank):
         self.dead = False
         
 class EnemyTank(Tank):
-    def __init__(self, game, assets, groups, position, direction, color, tank_level):
+    def __init__(self, game, assets, groups, position, direction, color, tank_level, behavior):
         super().__init__(game, assets, groups, position, direction, True, color, tank_level)
         self.time_between_shots = random.choice([300, 600, 900])
         self.shot_timer = pygame.time.get_ticks()
+        self.behavior = behavior
+        self.mover_time = pygame.time.get_ticks()
 
         self.dir_rec = {
             "Left": MyRect(self.x_pos - (self.width//2), self.y_pos, self.width//2, self.height),
@@ -477,6 +480,84 @@ class EnemyTank(Tank):
             if pygame.time.get_ticks() - self.shot_timer >= self.time_between_shots:
                 self.shoot()
                 self.shot_timer = pygame.time.get_ticks()
+    
+    def ai_movement(self):
+        """Decide how this tank should move based on its AI type"""
+        now = pygame.time.get_ticks()
+        if now - self.mover_time < 500:
+            return
+
+        self.move_timer = now
+        
+        if self.behavior == "chaser":
+            player = self.game.player1  # simple version, always chase player 1
+            dx = player.rect.centerx - self.rect.centerx
+            dy = player.rect.centery - self.rect.centery
+            if abs(dx) > abs(dy):
+                self.move_tank("Right" if dx > 0 else "Left")
+            else:
+                self.move_tank("Down" if dy > 0 else "Up")
+
+        elif self.behavior == "evader":
+            player = self.game.player1
+            dx = player.rect.centerx - self.rect.centerx
+            dy = player.rect.centery - self.rect.centery
+            if abs(dx) > abs(dy):
+                self.move_tank("Left" if dx > 0 else "Right")
+            else:
+                self.move_tank("Up" if dy > 0 else "Down")
+
+        elif self.behavior == "patroller":
+            """Try to move inm current direction first"""
+            old_pos = self.rect.topleft
+            self.move_tank(self.direction)
+
+            if self.rect.topleft == old_pos:
+                # Tank is blocked so pick a new available direction
+                directions = ["Up", "Down","Left","Right"]
+                random.shuffle(directions)
+                for dir in directions:
+                    # Try moving temporarily to see if it works
+                    self.direction = dir
+                    self.move_tank(dir)
+                    if self.rect.topleft != old_pos:
+                        break # Found a direction that works
+                else:
+                    self.rect.topleft = old_pos # Revert if none wors
+
+        else:  # default random
+            self.move_tank(random.choice(["Up", "Down", "Left", "Right"]))
+            self.move_toward_base()
+    
+    def follow_closest_player(self):
+        """Find and chase the nearest player"""
+        players = [tank for tank in self.groups["Player_Tanks"] if tank.active]
+        if not players:
+            return
+        
+        target = min(players, key=lambda p: self.distance_to(p))
+        dx = target.rect.centerx - self.rect.centerx
+        dy = target.rect.centery - self.rect.centery
+
+        if abs(dx) > abs(dy):
+            self.direction = "Right" if dx > 0 else "Left"
+        else:
+            self.direction = "Down" if dy > 0 else "Up"
+    
+    def move_toward_base(self):
+        """Move directly toward the eagle"""
+        base = self.game.eagle
+        dx = base.rect.centerx - self.rect.centerx
+        dy = base.rect.centery - self.rect.centery
+
+        if abs(dx) > abs(dy):
+            self.direction = "Right" if dx > 0 else "Left"
+        else:
+            self.direction = "Down" if dy > 0 else "Up"
+    
+    def distance_to(self, other):
+        """return distance to another tank or object"""
+        return abs(self.rect.centerx - other.rect.centerx) + abs(self.rect.centery - other.rect.centery)
     
     def ai_move(self, direction):
         super().move_tank(direction)
@@ -528,6 +609,7 @@ class EnemyTank(Tank):
         self.ai_move(self.direction)
         self.ai_move_direction()
         self.ai_shooting()
+        self.ai_movement()
     
     def draw(self, window):
         super().draw(window)
@@ -536,8 +618,8 @@ class EnemyTank(Tank):
     
 
 class SpecialTank(EnemyTank):
-    def __init__(self, game, assets, groups, position, direction, color, tank_level):
-        super().__init__(game, assets, groups, position, direction, color, tank_level)
+    def __init__(self, game, assets, groups, position, direction, color, tank_level, behavior):
+        super().__init__(game, assets, groups, position, direction, color, tank_level, behavior)
         self.color_swap_timer = pygame.time.get_ticks()
         self.special = True
     
